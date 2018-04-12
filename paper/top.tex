@@ -1,0 +1,51 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\usepackage{color}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xspace}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{cite}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage[pagebackref=true,breaklinks=true,colorlinks,bookmarks=false]{hyperref}
+
+\cvprfinalcopy
+\def\cvprPaperID{1708}
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+%\ifcvprfinal\pagestyle{empty}\fi
+
+\input{commands}
+\RequirePackage{snapshot}
+\begin{document}
+\title{Learning 3D Shape Completion from Laser Scan Data with Weak Supervision}
+\author{David Stutz$^{1,2}$ \qquad Andreas Geiger$^{1,3}$\\
+$^1$Autonomous Vision Group, MPI for Intelligent Systems and University of Tübingen\\
+$^2$Computer Vision and Multimodal Computing, Max-Planck Institute for Informatics, Saarbr\"{u}cken\\
+$^3$Computer Vision and Geometry Group, ETH Z\"{u}rich\\
+{\tt\small david.stutz@mpi-inf.mpg.de,andreas.geiger@tue.mpg.de}	
+}
+
+\clearpage\maketitle
+%\ifcvprfinal\thispagestyle{empty}\fi
+
+\input{sec_abstract}
+\input{sec_intro}
+\input{sec_related}
+\input{sec_method}
+\input{sec_results}
+\input{sec_conclusion}
+
+{\small
+	\bibliographystyle{ieee}
+	\bibliography{bibliography_long,bibliography,bibliography_custom}
+}
+
+\end{document}

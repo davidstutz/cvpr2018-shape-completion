@@ -1,0 +1,130 @@
+\begin{table}
+    \centering
+    \vspace*{-0.25cm}
+    \begin{subfigure}[t]{0.5\textwidth}
+        % clean
+        % -----
+        % [Data] set: validation.json
+        % [Data] N: 1950
+        % [Data] pixels: 31104
+        % [Data] points: 411.713333333
+        % [Data] occupied: 3525
+        % [Data] observed points: 331.593333333
+        % [Data] observed space: 2190.67692308
+        % [Data] observed total: 2522.27025641
+        % [Data] observed invalid: 24.0307692308
+        % [Data] set: training_prior.json
+        % [Data] N: 14640
+        % [Data] pixels: 31104
+        % [Data] points: 407.848838798
+        % [Data] occupied: 3522
+        % [Data] observed points: 329.771857923
+        % [Data] observed space: 2193.04344262
+        % [Data] observed total: 2522.8135929
+        % [Data] observed invalid: 24.9206967213
+        % [Data] set: training_inference.json
+        % [Data] N: 14640
+        % [Data] pixels: 31104
+        % [Data] points: 410.855874317
+        % [Data] occupied: 3574
+        % [Data] observed points: 331.223702186
+        % [Data] observed space: 2200.80642077
+        % [Data] observed total: 2532.03224044
+        % [Data] observed invalid: 27.4879098361
+        % noisy
+        % -----
+        % [Data] set: training_inference.json
+        % [Data] N: 14640
+        % [Data] pixels: 31104
+        % [Data] points: 106.733538251
+        % [Data] occupied: 3574
+        % [Data] observed points: 100.450819672
+        % [Data] observed space: 1507.3431694
+        % [Data] observed total: 1607.79535519
+        % [Data] observed invalid: 143.542076503
+        % [Data] set: validation.json
+        % [Data] N: 1950
+        % [Data] pixels: 31104
+        % [Data] points: 106.267692308
+        % [Data] occupied: 3525
+        % [Data] observed points: 100.188205128
+        % [Data] observed space: 1483.26205128
+        % [Data] observed total: 1583.45025641
+        % [Data] observed invalid: 136.838461538
+        % [Data] set: training_prior.json
+        % [Data] N: 14640
+        % [Data] pixels: 31104
+        % [Data] points: 105.880737705
+        % [Data] occupied: 3522
+        % [Data] observed points: 99.7855874317
+        % [Data] observed space: 1499.75751366
+        % [Data] observed total: 1599.54357923
+        % [Data] observed invalid: 142.554098361
+        
+        {\small
+        \begin{tabularx}{0.95\textwidth}{|X|c|c|}
+            \hline
+            \clean and \noisy & \clean & \noisy\\
+            \hline
+            \#Models (Prior/Inference/Val) & \multicolumn{2}{c|}{325 / 1464 / 1464}\\ % = 3253
+            \#Samples (Prior/Inference/Val) & \multicolumn{2}{c|}{1950 / 14640 / 1464}\\
+            \hline
+            Avg. \#Points & 411 & 106\\
+            \% Observed / Free Space Voxels & 1.06 / 7.04 & 0.32 / 4.8\\
+            %\% Free Space Voxels & 7.04 & 4.8\\
+            \% Invalid Free Space Voxels & 0.078 & 0.44\\
+            \hline
+        \end{tabularx}
+        }
+    \end{subfigure}
+    \begin{subfigure}[t]{0.5\textwidth}
+        % training
+        % --------
+        % [Data] N: 7140
+        % [Data] pixels: 31104
+        % [Data] points: 135.218907563
+        % [Data] observed frames: 7
+        % [Data] observed points: 135
+        % [Data] observed points (combined GT): 855
+        % [Data] observed points voxels: 95.9831932773
+        % [Data] observed points voxels (combined GT): 330.200840336
+        % [Data] observed space voxels: 1084.93837535
+        % [Data] observed total voxels: 1180.92156863
+        % [Data] observed invalid space voxels: 84.0274859944
+        % validation
+        % ----------
+        % [Data] N: 7118
+        % [Data] pixels: 31104
+        % [Data] points: 128.333520652
+        % [Data] observed frames: 6
+        % [Data] observed points: 128
+        % [Data] observed points (combined GT): 597
+        % [Data] observed points voxels: 89.0772688958
+        % [Data] observed points voxels (combined GT): 303.195420062
+        % [Data] observed space voxels: 975.978645687
+        % [Data] observed total voxels: 1065.05591458
+        % [Data] observed invalid space voxels: 88.295123279
+        
+        {\small
+        \begin{tabularx}{0.95\textwidth}{|X|c|c|}
+            \hline
+            KITTI
+            & Training
+            & Validation\\
+            \hline
+            \#Samples & 7140 & 7118\\
+            Avg. \#Points & 135 & 128\\
+            \% Observed / Free Space Voxels & 0.31 / 3.49 & 0.29 / 0.28\\
+            %\% Free Space Voxels & 3.49 & 3.42\\
+            %Invalid Free Space Voxels* in \% & 0.27 & 0.28\\
+            %\hline
+            %Ground Truth Points & 855 & 597\\
+            %Ground Truth Frames & 7 & 6\\
+            \hline
+        \end{tabularx}
+        }
+    \end{subfigure}
+    \caption{{\bf Dataset Statistics.} Key statistics of the synthetic datasets, \clean and \noisy, derived from ShapeNet \cite{Chang2015ARXIV} and the dataset extracted from KITTI \cite{Geiger2012CVPR}.}
+    \label{table:experiments-data}
+\end{table}
+\vspace*{-0.25cm}

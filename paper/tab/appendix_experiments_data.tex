@@ -1,0 +1,348 @@
+\begin{table}
+    \centering
+    \vspace*{-0.25cm}
+    \begin{subfigure}[t]{0.49\textwidth}
+    	\vspace{0px}
+        % clean
+        % -----
+        % [Data] set: validation.json
+        % [Data] N: 1950
+        % [Data] pixels: 31104
+        % [Data] points: 411.713333333
+        % [Data] occupied: 3525
+        % [Data] observed points: 331.593333333
+        % [Data] observed space: 2190.67692308
+        % [Data] observed total: 2522.27025641
+        % [Data] observed invalid: 24.0307692308
+        % [Data] set: training_prior.json
+        % [Data] N: 14640
+        % [Data] pixels: 31104
+        % [Data] points: 407.848838798
+        % [Data] occupied: 3522
+        % [Data] observed points: 329.771857923
+        % [Data] observed space: 2193.04344262
+        % [Data] observed total: 2522.8135929
+        % [Data] observed invalid: 24.9206967213
+        % [Data] set: training_inference.json
+        % [Data] N: 14640
+        % [Data] pixels: 31104
+        % [Data] points: 410.855874317
+        % [Data] occupied: 3574
+        % [Data] observed points: 331.223702186
+        % [Data] observed space: 2200.80642077
+        % [Data] observed total: 2532.03224044
+        % [Data] observed invalid: 27.4879098361
+        % noisy
+        % -----
+        % [Data] set: training_inference.json
+        % [Data] N: 14640
+        % [Data] pixels: 31104
+        % [Data] points: 106.733538251
+        % [Data] occupied: 3574
+        % [Data] observed points: 100.450819672
+        % [Data] observed space: 1507.3431694
+        % [Data] observed total: 1607.79535519
+        % [Data] observed invalid: 143.542076503
+        % [Data] set: validation.json
+        % [Data] N: 1950
+        % [Data] pixels: 31104
+        % [Data] points: 106.267692308
+        % [Data] occupied: 3525
+        % [Data] observed points: 100.188205128
+        % [Data] observed space: 1483.26205128
+        % [Data] observed total: 1583.45025641
+        % [Data] observed invalid: 136.838461538
+        % [Data] set: training_prior.json
+        % [Data] N: 14640
+        % [Data] pixels: 31104
+        % [Data] points: 105.880737705
+        % [Data] occupied: 3522
+        % [Data] observed points: 99.7855874317
+        % [Data] observed space: 1499.75751366
+        % [Data] observed total: 1599.54357923
+        % [Data] observed invalid: 142.554098361
+        
+        {\small
+        \begin{tabularx}{1\textwidth}{|X|c|c|}
+            \hline
+            \clean and \noisy & \clean & \noisy\\
+            \hline
+            \#Models (Prior / Inference / Val) & \multicolumn{2}{c|}{325 / 1464 / 1464}\\ % = 3253
+            \#Samples (Prior / Inference / Val) & \multicolumn{2}{c|}{1950 / 14640 / 1464}\\
+            \hline
+            Avg. \#Points & 411 & 106\\
+            \% Observed / Free Space Voxels & 1.06 / 7.04 & 0.32 / 4.8\\
+            %\% Free Space Voxels & 7.04 & 4.8\\
+            \% Invalid Free Space Voxels & 0.078 & 0.44\\
+            \hline
+        \end{tabularx}
+        }
+        % training
+        % --------
+        % [Data] N: 7140
+        % [Data] pixels: 31104
+        % [Data] points: 135.218907563
+        % [Data] observed frames: 7
+        % [Data] observed points: 135
+        % [Data] observed points (combined GT): 855
+        % [Data] observed points voxels: 95.9831932773
+        % [Data] observed points voxels (combined GT): 330.200840336
+        % [Data] observed space voxels: 1084.93837535
+        % [Data] observed total voxels: 1180.92156863
+        % [Data] observed invalid space voxels: 84.0274859944
+        % validation
+        % ----------
+        % [Data] N: 7118
+        % [Data] pixels: 31104
+        % [Data] points: 128.333520652
+        % [Data] observed frames: 6
+        % [Data] observed points: 128
+        % [Data] observed points (combined GT): 597
+        % [Data] observed points voxels: 89.0772688958
+        % [Data] observed points voxels (combined GT): 303.195420062
+        % [Data] observed space voxels: 975.978645687
+        % [Data] observed total voxels: 1065.05591458
+        % [Data] observed invalid space voxels: 88.295123279
+        
+        \vspace*{0.05cm}
+        {\small
+        	\begin{tabularx}{1\textwidth}{|X|c|c|}
+        		\hline
+        		KITTI
+        		& Training
+        		& Validation\\
+        		\hline
+        		\#Samples & 7140 & 7118\\
+        		Avg. \#Points & 135 & 128\\
+        		\% Observed / Free Space Voxels & 0.31 / 3.49 & 0.29 / \green{3.2}\\
+        		%\% Free Space Voxels & 3.49 & 3.42\\
+        		%Invalid Free Space Voxels* in \% & 0.27 & 0.28\\
+        		%\hline
+        		%Ground Truth Points & 855 & 597\\
+        		%Ground Truth Frames & 7 & 6\\
+        		\hline
+        	\end{tabularx}
+        }
+    \end{subfigure}
+    \begin{subfigure}[t]{0.49\textwidth}
+    	\vspace{0px}
+%		bathtub:
+%    	[Data] set: training_inference.json
+%    	[Data] N: 700
+%    	[Data] pixels: 32768
+%    	[Data] points: 618.8742857142857
+%    	[Data] occupied: 1084
+%    	[Data] observed points: 204.52
+%    	[Data] observed space: 1226.44
+%    	[Data] observed total: 1430.96
+%    	[Data] observed invalid: 64.2285714286
+%    	[Data] set: validation.json
+%    	[Data] N: 150
+%    	[Data] pixels: 32768
+%    	[Data] points: 593.44
+%    	[Data] occupied: 967
+%    	[Data] observed points: 198.70666666666668
+%    	[Data] observed space: 1213.3666666666666
+%    	[Data] observed total: 1412.07333333
+%    	[Data] observed invalid: 57.5466666667
+%    	[Data] set: training_prior.json
+%    	[Data] N: 700
+%    	[Data] pixels: 32768
+%    	[Data] points: 636.45
+%    	[Data] occupied: 1085
+%    	[Data] observed points: 209.44
+%    	[Data] observed space: 1252.6128571428571
+%    	[Data] observed total: 1462.05285714
+%    	[Data] observed invalid: 66.5385714286
+%		dresser:
+%		[Data] set: training_prior.json
+%		[Data] N: 1280
+%		[Data] pixels: 32768
+%		[Data] points: 1394.06796875
+%		[Data] occupied: 1916
+%		[Data] observed points: 411.1375
+%		[Data] observed space: 2746.1984375
+%		[Data] observed total: 3157.3359375
+%		[Data] observed invalid: 81.19453125
+%		[Data] set: validation.json
+%		[Data] N: 280
+%		[Data] pixels: 32768
+%		[Data] points: 1348.8285714285714
+%		[Data] occupied: 2020
+%		[Data] observed points: 409.2214285714286
+%		[Data] observed space: 2736.582142857143
+%		[Data] observed total: 3145.80357143
+%		[Data] observed invalid: 99.1392857143
+%		[Data] set: training_inference.json
+%		[Data] N: 1280
+%		[Data] pixels: 32768
+%		[Data] points: 1475.1546875
+%		[Data] occupied: 2071
+%		[Data] observed points: 433.32421875
+%		[Data] observed space: 2872.15
+%		[Data] observed total: 3305.47421875
+%		[Data] observed invalid: 90.4984375
+%		monitor:
+%		[Data] set: training_inference.json
+%		[Data] N: 1524
+%		[Data] pixels: 32768
+%		[Data] points: 1057.268372703412
+%		[Data] occupied: 1164
+%		[Data] observed points: 372.9665354330709
+%		[Data] observed space: 3028.1115485564305
+%		[Data] observed total: 3401.07808399
+%		[Data] observed invalid: 101.791338583
+%		[Data] set: training_prior.json
+%		[Data] N: 1524
+%		[Data] pixels: 32768
+%		[Data] points: 1066.755905511811
+%		[Data] occupied: 1236
+%		[Data] observed points: 374.28477690288713
+%		[Data] observed space: 2931.3930446194227
+%		[Data] observed total: 3305.67782152
+%		[Data] observed invalid: 110.317585302
+%		[Data] set: validation.json
+%		[Data] N: 336
+%		[Data] pixels: 32768
+%		[Data] points: 1113.172619047619
+%		[Data] occupied: 1233
+%		[Data] observed points: 373.9136904761905
+%		[Data] observed space: 2914.6488095238096
+%		[Data] observed total: 3288.5625
+%		[Data] observed invalid: 97.8898809524
+%		nighstand:
+%		[Data] set: validation.json
+%		[Data] N: 280
+%		[Data] pixels: 32768
+%		[Data] points: 1502.107142857143
+%		[Data] occupied: 2546
+%		[Data] observed points: 474.1142857142857
+%		[Data] observed space: 3169.9142857142856
+%		[Data] observed total: 3644.02857143
+%		[Data] observed invalid: 193.632142857
+%		[Data] set: training_inference.json
+%		[Data] N: 1280
+%		[Data] pixels: 32768
+%		[Data] points: 1472.47109375
+%		[Data] occupied: 2344
+%		[Data] observed points: 464.253125
+%		[Data] observed space: 3075.828125
+%		[Data] observed total: 3540.08125
+%		[Data] observed invalid: 168.1203125
+%		[Data] set: training_prior.json
+%		[Data] N: 1280
+%		[Data] pixels: 32768
+%		[Data] points: 1465.19296875
+%		[Data] occupied: 2295
+%		[Data] observed points: 461.2640625
+%		[Data] observed space: 3098.29609375
+%		[Data] observed total: 3559.56015625
+%		[Data] observed invalid: 178.5890625
+%		sofa:
+%		[Data] set: training_inference.json
+%		[Data] N: 1755
+%		[Data] pixels: 32768
+%		[Data] points: 587.757264957265
+%		[Data] occupied: 1077
+%		[Data] observed points: 207.43817663817663
+%		[Data] observed space: 1418.0962962962963
+%		[Data] observed total: 1625.53447293
+%		[Data] observed invalid: 76.4643874644
+%		[Data] set: training_prior.json
+%		[Data] N: 1755
+%		[Data] pixels: 32768
+%		[Data] points: 592.8398860398861
+%		[Data] occupied: 1073
+%		[Data] observed points: 209.92934472934473
+%		[Data] observed space: 1440.480341880342
+%		[Data] observed total: 1650.40968661
+%		[Data] observed invalid: 77.29002849
+%		[Data] set: validation.json
+%		[Data] N: 390
+%		[Data] pixels: 32768
+%		[Data] points: 643.2666666666667
+%		[Data] occupied: 1128
+%		[Data] observed points: 226.63333333333333
+%		[Data] observed space: 1520.7282051282052
+%		[Data] observed total: 1747.36153846
+%		[Data] observed invalid: 80.0435897436
+% 		toilet:
+%		[Data] set: training_inference.json
+%		[Data] N: 1393
+%		[Data] pixels: 32768
+%		[Data] points: 998.0308686288586
+%		[Data] occupied: 1618
+%		[Data] observed points: 356.02153625269204
+%		[Data] observed space: 2407.643216080402
+%		[Data] observed total: 2763.66475233
+%		[Data] observed invalid: 103.513280689
+%		[Data] set: training_prior.json
+%		[Data] N: 1393
+%		[Data] pixels: 32768
+%		[Data] points: 1005.1399856424982
+%		[Data] occupied: 1593
+%		[Data] observed points: 355.5362526920316
+%		[Data] observed space: 2396.049533381192
+%		[Data] observed total: 2751.58578607
+%		[Data] observed invalid: 106.465183058
+%		[Data] set: validation.json
+%		[Data] N: 308
+%		[Data] pixels: 32768
+%		[Data] points: 1009.9285714285714
+%		[Data] occupied: 1676
+%		[Data] observed points: 360.1233766233766
+%		[Data] observed space: 2445.103896103896
+%		[Data] observed total: 2805.22727273
+%		[Data] observed invalid: 106.863636364
+%		bdmnsf:
+%		[Data] set: training_inference
+%		[Data] N: 7932
+%		[Data] pixels: 32768
+%		[Data] points: 1038.731845688351
+%		[Data] occupied: 2357.516515380736
+%		[Data] observed points: 342.97226424609175
+%		[Data] observed space: 2386.4558749369644
+%		[Data] observed total: 2729.42813918
+%		[Data] observed invalid: 110.759707514
+%		[Data] set: training_prior
+%		[Data] N: 7932
+%		[Data] pixels: 32768
+%		[Data] points: 1030.2192385274836
+%		[Data] occupied: 2366.558623298033
+%		[Data] observed points: 340.0630358043369
+%		[Data] observed space: 2356.399899142713
+%		[Data] observed total: 2696.46306102
+%		[Data] observed invalid: 115.949445285
+%		[Data] set: validation
+%		[Data] N: 1744
+%		[Data] pixels: 32768
+%		[Data] points: 1045.4334862385322
+%		[Data] occupied: 2433.5424311926604
+%		[Data] observed points: 345.22935779816515
+%		[Data] observed space: 2386.079128440367
+%		[Data] observed total: 2731.30848624
+%		[Data] observed invalid: 114.655389908
+%		
+    	{\small
+   		\begin{tabularx}{1\textwidth}{|X|c|c|c|}
+   			\hline
+   			ModelNet& Prior & Inference & Val\\
+   			\hline
+   			\#Models / \#Samples&&&\\
+   			\quad bathtub & \green{70 / 700} & \green{70 / 700} & \green{15 / 150}\\
+   			\quad dresser & \green{128 / 1280} & \green{128 / 1280} & \green{28 / 280}\\
+   			\quad monitor & \green{254 / 1524} & \green{254 / 1524} & \green{56 / 336}\\
+   			\quad nightstand & \green{128 / 1280} & \green{128 / 1280} & \green{28 / 280}\\
+   			\quad sofa & \green{351 / 1755} & \green{351 / 1755} & \green{78 / 390}\\
+   			\quad toilet & \green{199 / 1393} & \green{199 / 1393} & \green{44 / 308}\\
+   			\hline
+   			Avg. \#Points & \green{1030} & \green{1038} & \green{1045}\\
+   			\% Observed / Free Space Voxels & \green{1.04 / 7.28} & \green{1.04 / 7.19} & \green{1.05 / 7.28}\\
+   			\hline
+   		\end{tabularx}
+    	}
+    \end{subfigure}
+    \caption{{\bf Dataset Statistics.} Key statistics of the synthetic datasets, \clean, \noisy (derived from ShapeNet \cite{Chang2015ARXIV}) and ModelNet \cite{Wu2015CVPR} as well as the dataset extracted from KITTI \cite{Geiger2012CVPR}.}
+    \label{table:appendix-experiments-data}
+    \vspace*{-0.25cm}
+\end{table}

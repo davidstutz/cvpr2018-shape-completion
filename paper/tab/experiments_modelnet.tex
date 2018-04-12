@@ -1,0 +1,24 @@
+\begin{table}[t!]
+    \centering
+    \vspace*{-0.25cm}
+    {\small
+    \begin{tabularx}{0.5\textwidth}{| X | c c c |}
+        \hline
+        &\multicolumn{3}{c|}{\Abs}\\
+        & \VAE & \AML & \Sup\\
+        \hline\hline
+        bathtub & 0.015 & 0.037 & 0.025\\
+        dresser & 0.018 & 0.069 & 0.036\\
+        monitor & 0.013 & 0.036 & 0.023\\
+        nightstand & 0.03 & 0.099 & 0.065\\
+        sofa & 0.011 & 0.028 & 0.019\\
+        toilet & 0.02 & 0.053 & 0.033\\
+        \hline\hline
+        all & 0.016 & 0.065 & 0.035\\
+        \hline
+    \end{tabularx}
+    }\\[-0.1cm]
+    \caption{\green{{\bf Quantitative Results on ModelNet.} We report Hamming distance (\Abs) for both category-specific as well as -agnostic (\cf ``all'') models on ModelNet; {\bf lower is better}. Results were obtained on the validation sets.}}
+    \label{tab:experiments-modelnet}
+    \vspace*{-0.25cm}
+\end{table}

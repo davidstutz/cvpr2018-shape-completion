@@ -1,0 +1,148 @@
+\documentclass[10pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xspace}
+\usepackage{array}
+\usepackage{cite}
+\usepackage[pagebackref=true,breaklinks=true,colorlinks,bookmarks=false]{hyperref}
+\usepackage{tabularx}
+\usepackage{multirow}
+
+\input{commands}
+
+\cvprfinalcopy
+\def\cvprPaperID{1708}
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+%\ifcvprfinal\pagestyle{empty}\fi
+
+\RequirePackage{snapshot}
+\begin{document}
+	
+\title{Supplementary Material for\\\green{Learning 3D Shape Completion from Laser Scan Data with Weak Supervision}}
+\author{David Stutz$^{1,2}$ \qquad Andreas Geiger$^{1,3}$\\
+	$^1$Autonomous Vision Group, MPI for Intelligent Systems and University of Tübingen\\
+	$^2$Computer Vision and Multimodal Computing, Max-Planck Institute for Informatics, Saarbr\"{u}cken\\
+	$^3$Computer Vision and Geometry Group, ETH Z\"{u}rich\\
+	{\tt\small david.stutz@mpi-inf.mpg.de,andreas.geiger@tue.mpg.de}	
+}
+
+\clearpage\maketitle
+%\ifcvprfinal\thispagestyle{empty}\fi
+
+\section{Overview}
+\label{sec:appendix-overview}
+
+This document provides additional details regarding the used datasets and further experimental results complementary to the main paper. In Section \ref{sec:appendix-data}, we discuss technical details regarding the introduced, synthetic datasets derived from ShapeNet \cite{Chang2015ARXIV}, referred to as \clean and \noisy, \green{the synthetic dataset derived from ModelNet \cite{Wu2015CVPR},} as well as the dataset extracted from KITTI \cite{Geiger2012CVPR}. \green{Then, in Section \ref{sec:appendix-architecture}, we provide additional details concerning architecture followed by a discussion of the training procedure in Section \ref{sec:appendix-training}.} In Section \ref{sec:appendix-evaluation}, we discuss our implementation of the mesh-to-mesh distance used for evaluation. Subsequently, in Section \ref{sec:appendix-baselines} we discuss the evaluation of the approach by Engelmann \etal \cite{Engelmann2016GCPR} in more detail and, finally, present additional experiments in Section~\ref{sec:appendix-experiments}.
+
+\section{Data}
+\label{sec:appendix-data}
+
+\boldparagraph{ShapeNet}
+%
+For generating \clean and \noisy, we took a subset of the car models provided by ShapeNet, simplified them, generated several random variants of each model and scaled them to allow signed distance function (SDF) computation. Specifically, we obtained $3253$ car models from ShapeNet \cite{Chang2015ARXIV} after manually discarding $262$ of the available $3515$ car models. The discarded models could not be oriented or scaled automatically and mostly correspond to large, elongated or exotic cars -- see Figure \ref{fig:appendix-experiments-shapenet} (left) for examples. We subsequently simplified the models using the semi-convex hull algorithm described in \cite{Guney2015CVPR} as illustrated in Figure \ref{fig:appendix-experiments-shapenet} (middle). This was necessary for two reasons: to reduce the complexity of the models (\ie, reduce the number of faces from up to $\sim 1700k$ to exactly $1k$); and to obtain watertight meshes. While we would expect the majority of the car models to be approximately watertight, this is not always the case -- often, we found cars without windows or with open doors. We scaled the simplified models to $[-0.5, 0.5]^3$ (centered at the origin; padded by $0.1$ on all sides) in order to randomly scale (by factors in $(0.9, 1.05)$), randomly rotate (by $-2.5$ to $2.5$, $-5$ to $5$ and $-2.5$ to $2.5$ degrees around the x, y and z axes, respectively), randomly translate (by $[-0.1,0.1] \times [-0.05,0.05] \times [-0.05,0.05]$) and obtain $10$ variants per model ($6$ for the validation set). We note that, in our case, x,y and z axes correspond to length, height and breadth of the cars; or x = right, y = up and z = forward. The models are then translated to $(0.5, 0.5, 0.5)$ and scaled by $W$ to fit the voxel grid $H \times W \times D$ (for the voxel grid, x and y axes are flipped).
+
+Based on the pre-processed models, we compute SDFs, occupancy grids and derive observations. To this end, considering watertight meshes, we make the following observation: a ray from the origin (outside of the mesh) to a voxel's center (\ie, $(w + 0.5, h + 0.5, d + 0.5)$ for $0\leq w<W$, $0\leq h<H$ and $0\leq d<D$), intersects the mesh surface an odd number of times if and only if the voxel's center lies inside of the mesh. Thus, for each voxel center, we compute the distance to the surface (using point-to-triangle distance\footnote{We use the code provided by Christopher Batty at \url{https://github.com/christopherbatty/SDFGen}.}) and assign negative sign if the voxel's center is found to be inside the mesh (using ray-triangle intersections \cite{Moller1997JGT}\footnote{We use the code provided at \url{http://fileadmin.cs.lth.se/cs/personal/tomas_akenine-moller/code/}.}). The corresponding occupancy grids are derived by thresholding. To derive observations, we use the OpenGL renderer of \cite{Guney2015CVPR} and subsequently back-project the pixels to 3D using the known camera calibration matrix; this process is illustrated in Figure \ref{fig:appendix-experiments-shapenet} (right). To obtain observations from different viewpoints, we randomly rotate the camera around the cars ($360$ degrees). \green{For \noisy, we additionally add exponentially-distributed error (with rate parameter $70$) to the depth values or set them to the maximum depth with probability $0.075$.} The observed points can directly be voxelized; to compute free space, we perform ray tracing (from the camera center to the observed points) by computing ray-voxel intersections \cite{Williams2005SIGGRAPH}\footnote{We use the code provided at \url{http://www.cs.utah.edu/~awilliam/box/}.} along the rays. We note that we do not perform ray tracing for background points as we do not have any notion of background on KITTI.
+
+\input{fig/appendix_experiments_shapenet}
+
+\boldparagraph{KITTI}
+%
+On KITTI, we obtained observations by extracting the ground truth 3D bounding boxes of KITTI's 3D object detection benchmark. As the bounding boxes are tightly fitted, we first padded them by factor $0.25$ on all sides. Then, if $l$ denotes the length of a particular bounding box / car after padding (\ie, its size along the x axis), we scaled the bounding box by factor $\frac{W}{l}$; afterwards, the observed points can directly be voxelized into the voxel grid of size $H \times W \times D$. Based on the average bounding box, we determined $H \times W \times D = 24 \times 54 \times 24$. We also note that the 3D bounding box annotations are in camera coordinates, while the point clouds are in Velodyne coordinates -- this can be accounted for using the Velodyne-to-camera transformation as detailed in \cite{Geiger2013IJRR}. To not take points from the street or nearby walls, vegetation or objects into account, we only considered those points lying within the original (\ie, not padded) bounding box. Finally, free space is computed using ray tracing as described above.
+
+For evaluation, we generated ground truth point clouds by accumulating points from multiple frames. In particular, for each ground truth bounding box, we considered the corresponding tracklet in KITTI's raw annotations. Again, we note that the 3D bounding boxes of the 3D object detection benchmark are in camera coordinates, while the 3D bounding boxes from the raw annotations are in Velodyne coordinates which we accounted for as described above. Overall, we considered $10$ future and $10$ past frames in $0.5s$ intervals (\ie, each 5th frame) going a total of $50$ frames / $5s$ into the future and the past, respectively. We found that considering more frames (or smaller intervals) does not contribute to more complete observations of the cars. Finally, the ground truth points are scaled and voxelized as described above. On average, we used $6$ frames per sample to obtain $597$ points (compared to, on average, $128$ points in the observations) on the validation set.
+
+\input{fig/appendix_experiments_data}
+
+\boldparagraph{ModelNet}
+%
+\green{On ModelNet, we largely followed the procedure for \clean, considering all provided models (training and test) for object categories bathtub, dresser, monitor, nightstand, sofa and toilet. However, we used a resolution of $32 \times 32 \times 32$ and did not compute SDFs; mainly due to the complexity of the provided models, \ie, fine structures such as the legs of nightstands or dressers or the thin displays of monitors; this can also be seen in Figure \ref{fig:appendix-experiments-data}. We also did not simplify the models beforehand. As the models are not guaranteed to be watertight, however, we first voxelized the models' surface (using triangle-box intersections\footnote{We use the code provided at \url{http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/code/}.}) and then ``filled'' the models using flood-filling in a post-processing step\footnote{Using the connected components algorithm provided by Skicit-Image (\url{http://scikit-image.org/}).}. At a low resolution of $32 \times 32 \times 32$ this approach works considerably well even though the models might exhibit minor cracks or holes (as also reported in \cite{Haene2017ARXIV}). For random scaling, rotating and translating we used factors in $(0.9, 1.075)$, $-5$ to $5$/$-15$ to $15$/$-5$ to $5$ degrees around x/y/z axis and $[-0.075, 0.075] \times [-0.05, 0.05] \times [-0.075, 0.075]$, respectively.}
+
+\boldparagraph{Development Kit}
+%
+In the spirit of reproducible research and as stated in the introduction of our main paper, we intend to publicly release the created datasets as shape completion benchmark\footnote{See \url{https://avg.is.tuebingen.mpg.de/research_projects/3d-shape-completion}.}. Towards this goal, we briefly describe the provided data and tools. For \clean, \noisy and ModelNet, we provide the ground truth meshes (in OFF format) and the corresponding observations (in TXT format); both are in the same scale and coordinate system as described above. Meshes and observations are also provided using occupancy and SDF representation (if applicable, in HDF5 format). Again, we note that x,y and z axes correspond to length, height and breadth of the cars (\ie, x = right, y = up, z = forward); for the volumes in HDF5 format, x and y axes are flipped. For ModelNet we provide data for bathtub, dresser, monitor, nightstand, sofa, toilet and a combined (``all'' Figure \ref{fig:appendix-experiments-modelnet}) dataset. For KITTI, the observations as well as the ground truth points are provided in the same coordinate system (in TXT format) and in voxelized form (in HDF5 format). Overall, the datasets are available in formats supporting both data-driven approaches as well as learning-based approaches and specifically encourage the use of (convolutional) neural networks.
+
+We also provide a development kit including C++ and Python Code for I/O and evaluation. Specifically, we provide C++ and Python code to read and write files in OFF format\footnote{See \eg, \url{http://segeval.cs.princeton.edu/public/off_format.html} for specifications.}, TXT format for observed points and HDF5 format. Additionally, \green{we provide Python code to read ShapeNet's and ModelNet's original meshes in OBJ\footnote{See \eg, \url{http://paulbourke.net/dataformats/obj/} for specifications.} / OFF format}, and to convert our TXT format for points into PLY format\footnote{See \eg, \url{http://paulbourke.net/dataformats/ply/} for specifications.}. Meshes in OFF or OBJ format, and point clouds in PLY format can easily be visualized using MeshLab \cite{Cignoni2008}. For evaluation, we provide a parallel C++ implementation of the mesh-to-mesh and mesh-to-point distance (\ie, for computing accuracy, \Acc, and completeness, \Compl). We also provide a implementation of the Hamming distance (\Abs) in Python.
+
+\input{fig/appendix_experiments_prior}
+\input{tab/appendix_experiments_data}
+
+\boldparagraph{Discussion}
+%
+In Figure \ref{fig:appendix-experiments-data}, we show additional qualitative examples of the constructed datasets. As can be seen, \clean and \noisy show quite some variation in the type of cars included, as well as the generated observations -- \clean, however, is considerable easier than \noisy. This is mainly due to the sparse and very noisy observations generated for \noisy. However, when considering KITTI, we see that real world data is very sparse and noisy by nature. We also see that the ground truth derived on KITTI is not perfect: for some samples, ground truth could not be generated; for others, the future / past frames do not contain novel viewpoints; \green{or accumulated points do clearly not belong to the same car. On ModelNet, we observe that other object categories exhibit significantly more variations compared to ShapeNet's (simplified) cars; additionally thin structures contribute to the difficulty of ModelNet for 3D shape completion. Finally, Table \ref{table:appendix-experiments-data} summarizes key statistics of the created datasets.}
+
+\section{Architecture}
+\label{sec:appendix-architecture}
+
+Throughout our experiments, we found both the architecture and the shape representation to have significant influence on our results. On ShapeNet and KITTI, we used a shallow architecture where both encoder and decoder consist of three convolutional stages (no bias term) including $\text{ReLU}$ non-linearities and batch normalization. We use $3^3$ kernels and apply max pooling after each stage; specifically using window sizes $2\times 3 \times 2$ (first two stages) and $3^3$ (final stage). The special windows sizes for the max pooling layers are motivated by our resolution of $24 \times 54 \times 24$. \green{On ModelNet, we used four stages with window size $2^2$ for pooling.} We also experimented with deeper architectures as well as different pooling schemes. We found that deeper architectures do not necessarily improve performance; \green{specifically we assume that the low-dimensional bottleneck ($Q = 10$ for ShapeNet/KITTI and $Q = 25$ or $Q = 100$ for ModelNet) prevents deeper architectures to result in a significant increase in performance.}
+%Additionally, our shapes have been simplified such that small details have been removed prior to training.
+%Our pooling scheme reduces the input to a $2^3$ cube; using slightly different pooling will increase the smallest resolution, leading to a significant increase in the number of parameters (\eg, using $2^3$ pooling instead of $3^3$ leads to $96 \cdot 3^3 = 2592$ values instead of $96 \times 2^3 = 786$ values right before the fully connected layers), while not increasing performance.
+Overall, the used architecture results in a lightweight but well-performing model.
+
+For cars on ShapeNet, we also found the shape representation to have a significant influence on training. For example, occupancy is considerably easier to learn than SDFs. We assume that both the scale/range and the loss used for predicting SDFs plays an important role; therefore, motivated by work in depth estimation \cite{Eigen2015ICCV,Eigen2014NIPS,Laina2016THREEDV}, we transformed the SDFs using $\sign(y_i)\log(1 + |y_i|)$ for $y_i \in \mathbb{R}$. We found this transformation and the combination with occupancy (\ie, predicting both in separate channels) to aid training and result in reasonable shape priors. Alternatively, we tried splitting the SDFs into positive and negative parts (in separate channels), and transforming them separately using $\log(\epsilon + y_i)$ for $y_i \in \mathbb{R}_+$ and small $\epsilon \in (0.00001, 0.01)$. However, we assume that the increased scale (\eg, for $\epsilon = 0.00001$ and $\max(y_i) = 12$ a range of roughly $(-11.51, 2.49)$) in combination with the sum-of-squared error makes training harder. Finally, we also considered truncated SDFs, \ie, truncating the values $y_i$ above a threshold (\eg $5$); however, this did not have a significant effect on training. Overall, the combination of transformed SDFs and occupancy was easiest to train.
+
+\section{Training}
+\label{sec:appendix-training}
+
+\green{As mentioned in the main paper, we trained all our models using stochastic gradient descent (SGD) with momentum and weight decay. We initialized all weights using a standard Gaussian with standard deviation $0.02$. For the shape prior, \ie, training the recognition model $q(z|x)$ and the generative model $p(x|z)$, learning rate, momentum and weight decay were set to $10^{-7}$, $0.5$ and $10^{-6}$, respectively. We trained for $200$ epochs with batch size $16$ and decayed learning rate and momentum by factors $0.95$ and $1.025$ every $500$ iterations until reaching $10^{-14}$ and $0.9$, respectively. On ModelNet (where only occupancy grids are used), we found that a class-weighted binary cross-entropy error (weights $0.9$ and $1.1$ for unoccupied and occupied voxels, respectively) to help training. Furthermore, we used an initial learning rate of $10^{-6}$ and a decay factor of $1.04$ for the momentum parameter -- every $100$ iterations. For shape inference, \ie, training the encoder $z(x;w)$, we used the same strategy, but trained for only $50$ epochs with higher learning rate and momentum decay factors ($0.9$ and $1.1$, respectively). The supervised baseline was trained using the same strategy as the shape prior. For the maximum likelihood baseline, we also employed SGD starting with $z = 0$ for a maximum of $5000$ iterations (per sample) or until the change in objective drops below $0.001$. Initial learning and momentum were set to $0.05$ and $0.5$, respectively; both were decayed every $50$ iterations using factors $0.85$ and $1.04$, respectively.}
+
+\section{Evaluation}
+\label{sec:appendix-evaluation}
+
+For evaluation we consider mesh-to-mesh or mesh-to-point distances to compute accuracy (\Acc) and completeness (\Compl). For computing the distance of a reconstructed mesh to a target mesh (\ie, \Acc), we randomly sample 10k points on the reconstructed mesh. This is done by first computing the area of each face and then sampling points proportionally to a face's area. This ensures that the sampled points cover the full mesh, \ie the points are uniformly distributed over the reconstructed mesh. We found that $10k$ points provide sufficient accuracy compared to deterministically sampling the mesh (\cf \cite{Jensen2014CVPR}). We then compute the distance of each point to the nearest face of the target mesh and average these distances. Similarly, we can compute completeness. On KITTI, completeness can be obtained by directly computing point-to-face distances for the ground truth points.
+
+\section{Baselines}
+\label{sec:appendix-baselines}
+
+\input{tab/appendix_experiments_shapenet_kitti}
+\input{fig/appendix_experiments_shapenet_kitti}
+
+In the following, we briefly discuss related work, in particular the work by Engelmann \etal \cite{Engelmann2016GCPR} in more detail. Specifically, we note that Engelmann \etal jointly optimize shape and pose. For our experiments on KITTI, we neglected pose optimization as we can directly provide the true pose (of the corresponding bounding box), or equivalently transform the observations to the origin. For results on ShapeNet, in contrast, we also optimized the pose. This was necessary as the voxel grid of the pre-trained principal component analysis (\PCA) shape prior is centered at 1m height and assumes the ground plane to lie at 0m height. For \clean and \noisy, this is not the case as we consider randomly translated models such that the ground plane is not consistent. Therefore, we also needed to optimize the pose. This however results in a comparison to our approach that is not entirely fair. First of all, the approach by Engelmann \etal can directly work with the observed points (\ie, in 3D), while our approach is bound to the voxelized observations. Second, the pose optimization actually accounts for the random permutations (\ie, translations and rotations) which we deliberately integrated into \clean and \noisy and our shape prior needs to learn explicitly.
+
+\section{Experiments}
+\label{sec:appendix-experiments}
+
+In the following, we provide additional experimental results. In the main paper, We showed quantitative and qualitative results for the proposed amortized maximum likelihood (\AML) approach in comparison to regular maximum likelihood (\ML) and a supervised baseline (\Sup) as well as the work by Engelmann \etal \cite{Engelmann2016GCPR}. Complementary to the provided experiments we discuss the shape prior in more detail, present a brief ablation study for \AML and discuss additional results on all three datasets.
+
+\subsection{Shape Prior}
+\label{subsec:appendix-experiments-prior}
+
+In Table \ref{table:appendix-experiments-shapenet-kitti} and in Figure \ref{fig:appendix-experiments-prior}, we present additional quantitative and qualitative results for our shape prior; for brevity we concentrate on \clean -- \green{on ModelNet, a similar analysis applies to $Q = 25$ ($Q = 100$ for category-agnostic model)}. In our experiments, we chose to use a \VAE with latent space dimensionality $Q = 10$. As can be seen in Table \ref{table:appendix-experiments-shapenet-kitti}, in comparison to a probabilistic \PCA (\PPCA) baseline, a \VAE clearly demonstrates better reconstruction performance -- independent of $Q$. However, increasing $Q\geq15$ results in diminishing returns; meaning that reconstruction performance does not increase significantly while the model gets more complex (the number of weights in the fully connected layers scale with $768\cdot Q$). Additionally, we are also interested in the quality of the learned latent space and found that random samples give a good summary of the latent space. Therefore, in Figure \ref{fig:appendix-experiments-prior}, we illustrate that the learned latent space is more likely to contain exotic shapes for larger $Q$. As we want to constrain the shape prior to generate reasonable cars, we chose a \VAE shape prior with $Q = 10$.
+
+\subsection{Shape Completion}
+\label{subsec:appendix-experiments-inference}
+
+\boldparagraph{Ablation Study}
+%
+In Table \ref{table:appendix-experiments-shapenet-kitti} we present results -- in terms of Hamming distance (\Abs), accuracy (\Acc) and completeness (\Compl) -- for different variants of \AML. On \clean, \noisy and KITTI, we first consider the occupancy only case, \ie, training with supervision on the occupancy channel only. As the shape prior is trained on both occupancy and SDFs, however, we are still able to predict SDFs. Similarly, we consider the SDF only case. In both cases, the shape prior is able to perform well on both modalities. Still, only using occupancy performs slightly better -- supporting our assumption that occupancy is, in general, easier to learn.
+%On \noisy and KITTI, we also experimented with discarding the free space information, \ie, only using occupied voxels $x_i = 1$. On \noisy, this actually seems to improve performance; on KITTI, in contrast, \AML with weighted free space, performs slightly better.
+We also conducted experiments using a shape prior with $Q = 5$, in comparison to \cite{Engelmann2016GCPR} also using $Q = 5$, and found that performance does not decrease significantly.
+Overall, the combination of occupancy and SDFs with $Q = 10$ performs best on KITTI's real observations.
+
+\input{fig/appendix_experiments_modelnet}
+
+\boldparagraph{\clean and \noisy}
+%
+We consider additional qualitative results in Figure \ref{fig:appendix-experiments-shapenet-kitti}. On \clean, we notice that \cite{Engelmann2016GCPR} can better reconstruct the wheels of the observed cars; our approach, including the baselines \ML and \Sup, have difficulties reconstructing wheels. We assume this to be caused by the different shape priors, especially regarding the models used for training. Unfortunately, Engelmann \etal do not provide their models -- preventing further investigations. However, \cite{Engelmann2016GCPR} has difficulties estimating the correct size of the car, often predicting cars that are too large which might also be caused by the pose optimization. On \noisy, we explicitly show failure cases of \ML and \AML. Especially in the third row, \cite{Engelmann2016GCPR} predicts a more reasonable shape, while \ML and \AML are not able to recover the shape of the car. We assume this to be mainly due to the noise incorporated in the observations -- especially ignored rays going through the car. \AML is particularly influenced by invalid free space, while \cite{Engelmann2016GCPR} is not. In general, however, our shape prior is biased towards thin cars (especially in terms of height) while the shape prior of \cite{Engelmann2016GCPR} is more biased towards station wagons and SUV-like cars. Overall, these experiments demonstrate the importance of a good shape prior when less observations are available.
+
+\boldparagraph{KITTI}
+%
+On KITTI, again considering Figure \ref{fig:appendix-experiments-shapenet-kitti}, we also show failure cases. The first row shows a case were all approaches, \cite{Engelmann2016GCPR}, \AML and \Sup, predict reasonable shapes. The ground truth, however, contains invalid points -- this illustrates the difficulty of objectively evaluating shape completion without proper ground truth shapes. In the second row, \cite{Engelmann2016GCPR} overfits the noisy observations resulting in a ``crooked'' shape; \AML, instead, shrinks the predicted shape to alleviate the impact of noise. The last two rows show additional failure cases for \cite{Engelmann2016GCPR} and \AML; specifically, \cite{Engelmann2016GCPR} sometimes overestimates the size of the observed car (row three), while \AML might predict unreasonable car shapes (row four). This also reflects the employed shape priors; Engelmann \etal used less car models for training the shape priors resulting in more details being recovered, but the diversity being constrained. In contrast, our shape prior includes more diversity and, as a result, allows the prediction of more exotic and sometimes unreasonable shapes. Finally, \Sup has difficulties predicting reasonable car shapes (specifically rows two and three), even though we put significant effort into modeling KITTI's noise characteristics in \noisy.
+
+\boldparagraph{ModelNet}
+%
+\green{On ModelNet, we consider Figure \ref{fig:appendix-experiments-modelnet} showing additional qualitative results for the category-agnostic (\ie, ``all'') as well as category-specific models. For the former model, the first row shows examples where both \AML and \Sup perform well; while \Sup has access to object category information during training (in the form of completed shapes), \AML is able to distinguish object categories even without this information. The second row, in contrast, presents more challenging examples where \Sup sometimes outperforms \AML. For example, the dresser (last column, second row) is difficult to reconstruct for \AML as the observations do not cover the interior structure. The remaining rows show results for category-specific models. Here, we also present some hard cases; for example the second bathtub where both \AML and \Sup have significant difficulties. Other examples -- \eg, the second dresser -- demonstrate that \AML is able to perform better when knowledge about the object category is given (\ie, in contrast to the category-agnostic model). We also note that \AML is able to reconstruct fine details such as legs of nightstands or sofas in spite of the sparse observations. Overall, the presented experiments demonstrate that \AML generalizes to complex object categories -- even without explicit knowledge about the object category during training.}
+
+{\small
+	\bibliographystyle{ieee}
+	\bibliography{bibliography_long,bibliography,bibliography_custom}
+}
+
+\end{document}

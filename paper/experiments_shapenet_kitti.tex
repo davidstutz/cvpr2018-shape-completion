@@ -1,0 +1,36 @@
+\begin{table*}
+    \centering
+    \vspace*{-0.25cm}
+    {\small
+    \begin{tabularx}{1\textwidth}{|X|ccc|ccc|c|c|}
+        \hline
+        & \multicolumn{3}{c|}{\clean (val)}
+        & \multicolumn{3}{c|}{\noisy (val)}
+        & KITTI (val)&\\
+        & \Abs & \Acc [vx] & \Compl [vx] & \Abs & \Acc [vx] & \Compl [vx] & \Compl [m] & t [s]\\
+        \hline\hline
+        %\PPCA $Q{=}5$ & 0.03 & 0.51& 0.766137 &&&&&\\
+        \PPCA & 0.025 & 0.41 & 0.628 &&&&&\\
+        %\VAE $Q{=}5$ & 0.021 & 0.409 & 0.606 &&&&&\\
+        \VAE & \bf 0.014 & \bf 0.283 & \bf 0.439 &&&&&\\
+        \hline\hline
+        \Mean & 0.068 & 1.33 & 1.576 & 0.068 & 1.33 & 1.576 && \bf 0\\
+        \ML & 0.04 & 0.733 & 0.845 & 0.059 & 1.145 & 1.331 && 30\\
+        \Sup (on KITTI GT) & \bf 0.022 & \bf 0.425 & \bf 0.575 & \bf 0.027 & \bf 0.527 & \bf 0.751 & \bf \green{0.176} (\green{0.174}) & 0.001\\
+        \hline\hline
+        %\AML occ only & \bf 0.04 & \bf 0.725 & \bf 0.836 & \bf 0.058 & \bf 1.079 & 1.301 & \green{0.1} & \multirow{6}{*}{\bf 0.001}\\
+        %\AML sdf only & 0.043 & 0.804 & 0.916 & 0.06 & 1.21 & 1.294 & \green{0.107} &\\
+        \AML $Q{=}5$ & 0.041 & 0.752 & 0.877 & 0.061 & 1.203 & 1.39 & \bf \green{0.091} & \multirow{3}{*}{\bf 0.001}\\
+        \AML w/o weighted free space & 0.043 & 0.739 & 0.845 & 0.061 & 1.228 & 1.327 & \green{0.117} &\\
+        \AML (on KITTI GT) &&&& 0.062 & 1.161 & \bf 1.203  & \green{0.1} (\green{0.091}) &\\
+        \hline\hline
+        \cite{Engelmann2016GCPR} (on KITTI GT) && 1.164 & 0.99 && 1.713 & 1.211 & \green{0.131} (\green{0.129}) & 0.168*\\
+        \hline
+    \end{tabularx}
+    }
+    \caption{{\bf Quantitative Results.} On \clean and \noisy, we report Hamming distance (\Abs), accuracy (\Acc) and completeness (\Compl) (\cf Section \ref{subsec:experiments-evaluation}). Both \Acc and \Compl are in voxels, \ie as multiples of the voxel edge length. On KITTI \cite{Geiger2012CVPR}, we only report \Compl in meters. For all metrics, {\bf lower is better}. We also report the average runtime per sample. All results were obtained on the corresponding validation sets (\cf Table \ref{table:experiments-data}).
+    %We note that for \clean and \noisy, the car models in the validation sets were not available during training.
+    %For KITTI, we also report results when using the ground truth points as inputs.
+    * Runtimes on an Intel\textregistered\xspace Xeon\textregistered\xspace E5-2690 @2.6Ghz using (multi-threaded) Ceres \cite{Agarwal2012}; remaining runtimes on a NVIDIA\texttrademark\xspace GeForce\textregistered\xspace GTX TITAN using Torch \cite{Collobert2011}.}
+    \label{table:experiments-shapenet-kitti}
+\end{table*}

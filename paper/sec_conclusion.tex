@@ -1,0 +1,13 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+In this paper, we presented a weakly-supervised, learning-based approach to 3D shape completion. After using a variational auto-encoder (\VAE) \cite{Kingma2013ARXIV} to learn a shape prior on synthetic data, we formulated shape completion as maximum likelihood (\ML) problem. We fixed the learned generative model, \ie the \VAE's decoder, and trained a new, deterministic encoder to amortize, \ie \emph{learn}, the \ML problem. This encoder can be trained in an unsupervised fashion. Compared to related data-driven approaches, the proposed amortized maximum likelihood (\AML) approach offers fast inference and, in contrast to related learning-based approaches, does not require full supervision.
+
+On newly created, synthetic 3D shape completion benchmarks derived from ShapeNet \cite{Chang2015ARXIV} and ModelNet \cite{Wu2015CVPR}, we demonstrated that \AML outperforms a state-of-the-art data-driven method \cite{Engelmann2016GCPR} (while significantly reducing runtime) and generalizes across object categories.
+Motivated by related learning-based approaches, we also compared our approach to a fully-supervised baseline. We showed that \AML is able to compete with the fully-supervised model both quantitatively and qualitatively while using $9\%$ or less supervision.
+On real data from KITTI \cite{Geiger2012CVPR}, both \AML and \cite{Engelmann2016GCPR} predict reasonable shapes. However, \AML demonstrates significantly lower runtime, and runtime is independent of the observed points. Additionally, \AML allows to learn from KITTI's unlabeled data and, thus, outperforms the fully-supervised baseline which is not able to generalize well.
+Overall, our experiments demonstrate the benefits of the proposed \AML approach: reduced runtime compared to data-driven approaches and training on unlabeled, real data compared to learning-based approaches.
+
+\boldparagraph{Acknowledgements}
+%
+We thank Francis Engelmann for help with the approach of \cite{Engelmann2016GCPR}.

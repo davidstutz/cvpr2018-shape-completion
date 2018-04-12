@@ -1,0 +1,37 @@
+\section{Related Work}
+\label{sec:related-work}
+
+\boldparagraph{Symmetry-based and Data-driven Methods}
+%
+Shape completion is usually performed on partial scans of individual objects. Following \cite{SungTG2015}, classical shape completion approaches can roughly be categorized into symmetry-based methods and data-driven methods. The former leverage observed symmetry to complete shapes; representative works include \cite{ThrunICCV2005,PaulyTG2008,ZhengTG2010,KroemerHUMANOIDS2012,LawCVIU2011}.
+The data-driven case is more interesting in relation to the proposed approach.
+In early work, Pauly \etal \cite{Pauly2005SGP} pose shape completion as retrieval and alignment problem.
+In \cite{LiCGF2015,Engelmann2016GCPR,Engelmann2017WACV,Nan2012TG,Bao2013CVPR,Dame2013CVPR,Gupta2015CVPR} shape retrieval is avoided by learning a latent shape space.
+The alignment task is then posed as an optimization problem over the latent shape variables.
+Data-driven approaches are applicable to real data assuming knowledge about the category of shapes in order to learn the shape prior.
+However, they require costly optimization at inference time. In contrast, we propose an approach which amortizes the inference procedure by means of a deep neural network allowing for efficient completion of 3D shapes.
+
+%Engelmann \etal \cite{Engelmann2016GCPR} considers the problem of shape completion on the challenging KITTI dataset \cite{Geiger2012CVPR} using a learned shape prior.
+
+\boldparagraph{Learning-based Methods}
+%
+With the recent success of deep learning, several learning-based approaches have been proposed \cite{Firman2016CVPR,SmithARXIV2017,Dai2016ARXIV,Sharma2016ARXIV,Rezende2016ARXIV,Fan2016ARXIV,Riegler2017THREEDV,Han2017ICCV}. Strictly speaking, those techniques are data-driven as well, however, shape retrieval and fitting is avoided by learning shape completion under full supervision on synthetic datasets such as ShapeNet \cite{Chang2015ARXIV} or ModelNet \cite{Wu2015CVPR} -- usually using deep neural networks.
+%Most of them use deep neural networks to learn shape completion under full supervision on synthetic datasets such as ShapeNet \cite{Chang2015ARXIV} or ModelNet \cite{Wu2015CVPR}.
+Some approaches \cite{Riegler2017THREEDV,Haene2017ARXIV,Tatarchenko2017ICCV} use octrees to predict high-resolution shapes via supervision provided at multiple scales.
+% but the applicability (or generalization) to real data has -- to the best of our knowledge -- not been studied so far.
+However, full supervision for the 3D shape is often not available in real-world situations (\eg, KITTI \cite{Geiger2012CVPR}), thus existing models are primarily evaluated on synthetic datasets.
+In this paper, we propose to train a shape prior on synthetic data, but leverage unlabeled real-world data for learning shape completion. %\green{Additionally}, our model also handles implicit surface representations leading to sub-voxel accuracy instead of simple occupancy representations.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ag: the following section doesn't fit as is. some of the papers have been cited, but otherwise the paragraph would need to be reworked to fit the story. commented out for now.
+
+%\boldparagraph{Shape Priors}
+%%
+%For shape completion, learning-based approaches can be understood as implicitly learning a shape prior from training data \cite{SmithARXIV2017,Dai2016ARXIV,Sharma2016ARXIV,Rezende2016ARXIV}. To avoid explicitly aligning and retrieving shapes, data-driven approaches also use learned shape priors \cite{Engelmann2016GCPR,Engelmann2017WACV}. However, shape priors have also been applied in different domains, \eg, in 3D pose estimation \cite{Prisacariu2013ACCV,AdrianACCV2012,Dambreville2008PAMI,SandhuCVPR2009,Menze2015ISA} or tracking \cite{Ma2014ECCV,LeottaCVPR2009}. In classical 3D reconstruction, shape priors are also commonly used to resolve ambiguities \cite{Guney2015CVPR}, specularities \cite{Dame2013CVPR} or simply incomplete observations \cite{Bao2013CVPR,Engelmann2016GCPR,Engelmann2017WACV}. In the context of shape modeling, deep generative models such as variational auto-encoders \cite{Kingma2013ARXIV} or generative adversarial networks \cite{Goodfellow2014NIPS} have been used to generate, manipulate and reason about shapes \cite{Sharma2016ARXIV,Dai2016ARXIV,Girdhar2016ECCV,WuNIPS2016,Wu2015CVPR,SmithARXIV2017}. In our case, a learned shape prior has the primary purpose to constrain the space of possible shapes in order to enable weakly-supervised learning.
+
+%\textbf{3D Generative Models.} Recently, generative deep models received considerable attention, \eg, \cite{VanDenOordICML2016,VanDenOordNIPS2016,Goodfellow2014NIPS,MakhzaniARXIV2015,Kingma2013ARXIV,LarsenICML2016}. In this work, we resort to variational auto-encoders \cite{Kingma2013ARXIV} as generative adversarial networks are known to be harder to train \cite{MeschederARXIV2017,NowozinNIPS2016,Salimans2016NIPS}. We are not the first to make use of these models; related works include \cite{Sharma2016ARXIV,Dai2016ARXIV,Girdhar2016ECCV,WuNIPS2016,Wu2015CVPR,SmithARXIV2017} where generative models are usually used to learn a low-dimensional latent space of shapes.
+
+
+\boldparagraph{Amortized Inference}
+%
+The notion of amortized inference was introduced in \cite{Gersham2014COGSCI} and exploited repeatedly in recent work \cite{RezendeICML2015,WangARXIV2016,RitchieARXIV2016}. Generally, it describes the idea of \emph{learning how to infer}; in our case, we learn, \ie amortize, the maximum likelihood inference problem by training a network to directly predict maximum likelihood solutions.

@@ -1,0 +1,146 @@
+\section{Experimental Evaluation}
+\label{sec:experiments}
+
+In this section, we present quantitative and qualitative experimental results. First, we derive a synthetic benchmark for 3D shape completion of cars based on ShapeNet \cite{Chang2015ARXIV}. Second, we present results on KITTI \cite{Geiger2012CVPR} and compare the proposed amortized maximum likelihood (\AML) approach to the data-driven approach of \cite{Engelmann2016GCPR}.
+We also consider regular maximum likelihood (\ML) and a fully-supervised model (\Sup; following related work \cite{Dai2016ARXIV,Sharma2016ARXIV,Riegler2017THREEDV,Han2017ICCV}) as baselines.
+%While our synthetic benchmark naturally includes ground truth shapes, KITTI does not include any ground truth shapes. To demonstrate the benefits of \AML,
+Finally, we consider additional object categories on ModelNet \cite{Wu2015CVPR}.
+We provide complementary details and experiments in the supplementary material.
+% In the following, we discuss the used datasets, architecture and training, evaluation measures and relevant baselines.
+
+\subsection{Datasets}
+\label{subsec:experiments-data}
+
+\boldparagraph{ShapeNet}
+%
+On ShapeNet, we took $3253$ car models, and simplified them using the approach outlined in \cite{Guney2015CVPR} to obtain watertight meshes. \green{After random translation, rotation and scaling, we extract two sets: the reference shapes $\mathcal{Y}$ and the ground truth shapes $\mathcal{Y}^*$ (such that $\mathcal{Y} \cap \mathcal{Y}^* = \emptyset$).}
+To train the shape prior using the reference shapes $\mathcal{Y}$, we derive signed distance functions (SDFs) and occupancy grids at a resolution of $24 \times 54 \times 24$ voxels. \green{The ground truth shapes~$\mathcal{Y}^*$ are rendered to obtain the observations $\mathcal{X}$}. In particular, we identify occupied voxels, \ie, $x_{n,i} = 1$, by back-projecting pixels from the rendered depth image and perform ray tracing to identify free space, \ie, $x_{n,i} = 0$ (all other voxels are unknown, \ie, $x_{n,i} = \uk$).
+
+In order to benchmark 3D shape completion, we consider two difficulties: a ``clean'' -- or easy -- version with depth images rendered at a resolution of $48 \times 64$ pixels and a ``noisy'' -- or hard -- version using a resolution of $24 \times 32$. On average, this results in $411$ and $106$ observed points (not necessarily voxels), respectively.
+%Note that typically, a laser-based sensor installed, \eg, on an autonomous vehicle, does not provide more observations than this. Second, we also introduce a ``noisy'' -- or hard -- version. Here, we reduce the resolution of the captured depth images to $24 \times 32$ resulting in an average of only $106$ points being observed.
+%Additionally, we inject noise: we add an exponentially-distributed error term (with rate parameter $70$) to every depth value; and randomly (with probability $0.075$) set depth values to the maximum depth.
+\green{For the latter variant, we additionally inject noise by (randomly) perturbing pixels or setting them to the maximum depth value to simulate rays (\eg, from a LiDAR sensor) passing through objects (\eg, due to specular or transparent surfaces).}
+%Overall, we obtain the reference shapes as training set for the shape prior, the ground truth shapes and the corresponding observations as training set for shape completion and similarly an additional validation set.
+We refer to the created datasets as \clean and \noisy and show examples in Figure~\ref{fig:experiments-shapenet-kitti}.
+\green{Overall, we obtain $14640$/$14640$/$1950$ samples for the prior training/inference training/validation set with roughly $1.06\%$/$0.32\%$ observed voxels and $7.04\%$/$4.8\%$ free space voxels for \clean/\noisy.}
+\green{As can be seen, \clean and \noisy include a large variety of car models and \noisy, in particular, captures the difficulty of real data, \eg from KITTI, by explicitly modeling sparsity and noise.}
+
+\boldparagraph{KITTI}
+%
+On KITTI, we extract observations using the provided ground truth 3D bounding boxes to avoid the inaccuracies of 3D object detectors.
+%Note that while significant pr. While we also consider detections from \cite{Chen2016ARXIV}, as done similarly in \cite{Engelmann2016GCPR}, we found that most 3D object detectors still perform poorly on KITTI's 3D object detection benchmark\footnote{\url{http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d}}.
+We used KITTI's Velodyne point clouds from the 3D object detection benchmark and the training/validation split of \cite{Chen2016ARXIV} ($7140$/$7118$ samples). Based on the average aspect ratio of cars in the dataset, we voxelize the points within the 3D bounding boxes into occupancy grids of size $24 \times 54 \times 24$ and perform ray tracing to obtain the observations $\mathcal{X}$.
+% Based on statistics from the ground truth 3D bounding boxes on KITTI, we determined $H \times W \times D$ to be $24 \times 54 \times 24$.
+%Depending on the distance from the sensor, some of the 3D bounding boxes contain only few points such that the derived observations are very sparse.
+We filtered the observations to contain at least $50$ observed points to avoid overly sparse observations. On average, we obtained $0.3\%$ observed voxels and $3.35\%$ free space voxels. For the bounding boxes in the validation set, we generated partial ground truth by considering $10$ future and $10$ past frames and accumulating the corresponding 3D points according to the ground truth bounding boxes. In Figure \ref{fig:experiments-shapenet-kitti}, we show  examples of the extracted observations and ground truth. Overall, the extracted observations are very sparse and noisy and ground truth is not available for every observation.
+
+\boldparagraph{ModelNet}
+%
+\green{On ModelNet, we consider the object categories bathtub, dresser, monitor, nightstand, sofa and toilet. We use a resolution of $32 \times 32 \times 32$ (similar to \cite{Wu2015CVPR}) and rely purely on occupancy grids as thin structures make SDFs unreliable in low resolution. Reference shapes $\mathcal{Y}$, ground truth shapes $\mathcal{Y}^\ast$ and observations $\mathcal{X}$ are obtained following the procedure for \clean (without simplification of the models). This results in -- on average -- $1.04\%$ observed voxels and $7.24\%$ free space voxels. Overall, we obtained a minimum of $700$/$700$/$150$ samples for prior training/inference training/validation per category. The large intra-category variations contribute to the difficulty of the task on ModelNet; we show examples in Figure \ref{fig:experiments-modelnet}.}
+
+\subsection{Architecture and Training}
+\label{subsec:experiments-architecture}
+
+\input{tab/experiments_shapenet_kitti}
+
+We rely on a simple, shallow architecture to predict both occupancy grids and (if applicable) SDFs in separate channels. Instead of predicting SDFs directly, we predict log-transformed SDFs, \ie, for signed distance $y_i$ we compute $\sign(y_i)\log(1 + |y_i|)$. \green{As in depth prediction \cite{Eigen2015ICCV,Eigen2014NIPS,Laina2016THREEDV}, this transformation reduces the overall range while enlarging the relative range around the boundaries. On ShapeNet, the encoder and the decoder of the variational auto-encoder (\VAE) \cite{Kingma2013ARXIV} comprise three convolutional stages including batch normalization, $\text{ReLU}$ activations and max pooling/nearest neighbor upsampling with $3^3$ kernels and $24$, $48$ and $96$ channels; the resolution is reduced to $2^3$. On ModelNet, we use four stages with $24$, $48$, $96$ and $96$ channels.}
+%We consistently use $3^3$ kernels and reduce the initial resolution of $24 \times 54 \times 24$ to $2^3$ using two $2 \times 3 \times 2$ pooling layers and a final $3^3$ pooling layer. The convolutional layers compute $24$, $48$ and $96$ channels, resulting in a $96 \cdot 2^3 = 768$-dimensional feature vector for the fully connected layers that compute mean $\mu(z)$ and variance $\sigma^2(z)$ of the recognition model. The decoder mirrors the encoder as depicted in Figure \ref{fig:method}.
+When predicting occupancy probabilities we use Sigmoid activations in the last layer of the decoder. We use stochastic gradient descent (SGD) with momentum and weight decay for training.
+%we initialized weights using a standard Gaussian with standard deviation $0.02$; learning rate, momentum and weight decay were set to $10^{-7}$, $0.5$ and $10^{-6}$, respectively. We trained for $200$ epochs with batch size $16$ and decayed learning rate and momentum by factor $0.95$ and $1.025$ every $500$ iterations until reaching $10^{-14}$ and $0.9$, respectively.
+%We did not experiment extensively with training hyper-parameters as the used parameters resulted in decent performance.
+
+% "learning_rate": 0.0000001,
+% "momentum": 0.5,
+% "weight_decay": 0.000001,
+% "batch_size": 16,
+% "epochs": 200,
+% "weight_initialization": "normal",
+% "weight_value": 0.02,
+% "bias_initialization": "xavier",
+% "bias_value": 0.02,
+
+% "decay_iterations": 500,
+% "decay_learning_rate": 0.95,
+% "minimum_learning_rate": 0.00000000000001,
+% "decay_momentum": 1.025,
+% "maximum_momentum": 0.9
+
+The encoder $z(x;w)$ trained for shape inference follows the architecture of the recognition model $q(z | x)$ \green{and takes occupancy grids and (if applicable) DFs of the observations as input}. The code $z$, however, is directly predicted. While training the encoder $z(x;w)$, the generative model is kept fixed. In order to obtain well-performing models for shape inference, we found that it is of crucial importance that the encoder predicts high-probability codes (\ie, under the Gaussian prior $p(z)$). Therefore, we experimentally set $\lambda = 15$ on \clean and ModelNet, $\lambda = 50$ on \noisy and $\lambda = 10$ on KITTI (\cf Equation \eqref{eq:aml}).
+\green{As before, we train the encoder using SGD with momentum and weight decay.}
+%We then trained the encoder for $50$ epochs using the same parameters as for the shape prior but with a higher learning rate and momentum decay (factors $0.9$ and $1.1$, respectively).
+On \noisy and KITTI, we additionally weight the per-voxel terms in Equation \eqref{eq:aml} for $x_i = 0$ by the probability of free space at voxel $i$ on the training set of the shape prior, \ie, \clean. We found that this reduces the impact of noise.
+
+%; only that we decayed the learning rate with factor $0.9$ and the momentum with factor $1.1$ (again, every $500$ iterations).
+
+% "learning_rate": 0.0000001,
+% "momentum": 0.5,
+% "weight_decay": 0.000001,
+% "batch_size": 16,
+% "epochs": 50,
+% "weight_initialization": "normal",
+% "weight_value": 0.01,
+% "bias_initialization": "normal",
+% "bias_value": 0.01,
+
+% "decay_iterations": 500,
+% "decay_learning_rate": 0.9,
+% "minimum_learning_rate": 0.000000001,
+% "decay_momentum": 1.1,
+% "maximum_momentum": 0.9
+
+\subsection{Evaluation}
+\label{subsec:experiments-evaluation}
+
+For evaluation, we consider metrics reflecting the employed shape representations. For occupancy grids, we use the Hamming distance (\Abs) between the (thresholded) predictions and the ground truth. For SDFs, we consider a mesh-to-mesh distance on \clean and \noisy and a mesh-to-point distance on KITTI. In both cases, we follow \cite{Jensen2014CVPR} and consider accuracy (\Acc) and completeness (\Compl). To measure accuracy, we sample roughly $10k$ points on the reconstructed mesh; for each point, we then compute the distance to the target mesh and report the average. Analogously, completeness is the distance from the target mesh (or the ground truth points on KITTI) to the reconstructed mesh. Note that for both \Acc and \Compl, lower is better. On \clean and \noisy, we report both \Acc and \Compl in voxels, \ie, in multiples of the voxel edge length (as we do not know the absolute scale of ShapeNet's car models); on KITTI, we only report \Compl in meters. 
+
+\subsection{Baselines}
+
+%Throughout our experiments, we consider two baselines and compare against related work by Engelmann \etal \cite{Engelmann2016GCPR}.
+%As simple baseline, we consider the mean prediction of the learned \VAE shape prior.
+We consider regular \ML as well as a fully-supervised model (\Sup) as baselines.
+\green{For the former, we applied SGD on an initial code of $z = 0$ until the change in objective is insignificant.}
+%For the former, we empirically determined a learning rate of $0.05$ and a momentum of $0. 5$ and apply SGD on an initial code $z = 0$. Learning rate and momentum are decayed every $50$ iterations using factors $0.85$ and $1.04$, respectively, until a total of $5000$ iterations are reached or the change in objective drops below $0.001$.
+As supervised baseline we train the \VAE shape prior architecture, using the very same training procedure, to directly perform 3D shape completion -- \ie, to predict completed shapes given the observations. Note that in contrast to the proposed approach, this baseline has access to full supervision during training (\ie, full shapes, not only the observations). \green{This baseline also represents related learning-based approaches \cite{SmithARXIV2017,Dai2016ARXIV,Sharma2016ARXIV,Fan2016ARXIV,Riegler2017THREEDV,Han2017ICCV} which are unsuitable for a fair comparison due to our low-dimensional bottleneck and as architectures are not trivially adjustable to our setting (\eg, resolution and SDFs).} Additionally, we consider the data-driven method proposed in \cite{Engelmann2016GCPR} which iteratively optimizes both the pose and the shape based on a principal component analysis (\PCA) shape prior with latent space dimensionality $Q = 5$\footnote{Code and shape prior (without models for training) from \url{https://github.com/VisualComputingInstitute/ShapePriors_GCPR16}.}. On KITTI, we adapted the method to only optimize the shape, as the pose is provided through the ground truth 3D bounding boxes. On \clean and \noisy, in contrast, we optimize both pose and shape as \cite{Engelmann2016GCPR} expects a common ground plane, which is not the case on \clean or \noisy by construction.
+
+% "iterations": 5000,
+% "learning_rate": 0.05,
+% "momentum": 0.5,
+
+% "decay_iterations": 50,
+% "decay_learning_rate": 0.85,
+% "minimum_learning_rate": 0.00001,
+% "decay_momentum": 1.04,
+% "maximum_momentum": 0.9
+
+\subsection{Results}
+
+\input{fig/experiments_shapenet_kitti}
+
+Our results on ShapeNet and KITTI are summarized in Table \ref{table:experiments-shapenet-kitti} and Figure \ref{fig:experiments-shapenet-kitti}; results on ModelNet are presented in Table \ref{tab:experiments-modelnet} and Figure \ref{fig:experiments-modelnet}. For our experiments, choosing $Q$ is of crucial importance -- large $Q$ allows to capture details and variation, but the latent space is more likely to contain unreasonable shapes; small $Q$ prevents the model from reconstructing shapes in detail. On \clean, we determined $Q = 10$ to be suitable; for fair comparison to \cite{Engelmann2016GCPR} we also report selected results for~$Q = 5$. \green{On ModelNet, in contrast, we use $Q = 25$ and $Q = 100$ for category-specific (\ie, one model per category) and -agnostic (\ie, one model for all six categories) models, respectively.}
+% We provide additional experiments in the supplementary material.
+% We continue with a brief ablation study, undermining the design choices of our approach, before presenting a comprehensive comparison with the baselines on all three datasets.
+
+\vspace*{-6px}
+\subsubsection{Shape Completion on ShapeNet}
+
+On \clean and \noisy, we follow Table \ref{table:experiments-shapenet-kitti}, demonstrating that \AML outperforms related work \cite{Engelmann2016GCPR} and performs on par with \ML while significantly reducing runtime. As reference point, we also report the reconstruction performance of the \VAE shape prior as lower bound on the achievable \Abs, \Acc and \Compl.
+%The poor performance of the mean prediction illustrates the variation of \clean and \noisy and the difficulty of 3D shape completion.
+\Sup, in contrast, performs well and represents the achievable performance under full supervision. Interestingly, \ML performs reasonably well; on \clean and \noisy, \ML exhibits less than double the error compared to \Sup while using only 8\% supervision or less. \AML demonstrates performance on par with \ML; this means that amortized inference is able to preserve performance while reducing runtime significantly. On \clean and \noisy, \AML easily outperforms related work \cite{Engelmann2016GCPR}, even for $Q = 5$. However, we note that \cite{Engelmann2016GCPR} was originally proposed for KITTI. Overall, \AML demonstrates good shape completion performance at low runtime and without full supervision.
+
+We also consider qualitative results in Figure \ref{fig:experiments-shapenet-kitti} showing meshes and occupancy grids for \ML, \cite{Engelmann2016GCPR}, \AML and \Sup. On \clean, the high number of observed points ensures that all methods predict reasonable shapes. In the second row, we notice that \Sup is not always able to predict the correct shape while \AML and \ML are and that \cite{Engelmann2016GCPR} has difficulties predicting the correct size of the car. Surprisingly, \ML comes most closely to the ground truth car in row three. \green{We suspect that \ML is able to overfit to these exotic cars while \AML is required to generalize based on the cars seen during training.} On \noisy, all methods have significant difficulties predicting reasonable cars. Interestingly, we notice that \cite{Engelmann2016GCPR} has a bias towards larger station wagons or cars with hatchback while \AML, \ML and \Sup prefer to predict thinner cars. This illustrates that the shape prior takes over more responsibility when less observations are available. Overall, we notice that \clean is -- by construction -- considerably easier than \noisy. Based on both quantitative and qualitative results, we find that \AML outperforms related work \cite{Engelmann2016GCPR} while being significantly faster and allowing -- in contrast to \Sup\xspace-- to be trained on unannotated real data as we demonstrate in the next section.
+
+\vspace*{-6px}
+\subsubsection{Shape Completion on KITTI}
+
+\input{tab/experiments_modelnet}
+
+On KITTI, considering Table \ref{table:experiments-shapenet-kitti}, we focused on \AML, \Sup and related work \cite{Engelmann2016GCPR}. We note that completeness (\Compl) is reported in meters. \Sup as well as the method by Engelmann \etal \cite{Engelmann2016GCPR} come close to an average of 10cm, while only \AML is able to actually reduce \Compl to 9.1cm. We also report results for \AML, \Sup and \cite{Engelmann2016GCPR} applied to KITTI's ground truth, \ie, \green{using} the ground truth points as input. In this case, performance slightly increases, but \AML still outperforms \Sup showing that \Sup is not able to generalize well. As the ground truth is noisy, however, the performance differences \green{are not significant enough}. Therefore, runtime and the level of supervision gain importance. Regarding the former, \AML \green{exhibits} significantly lower runtime compared to \cite{Engelmann2016GCPR}; regarding the latter, \AML requires considerably less supervision compared to \Sup. Overall, this shows the advantage of being able to amortize, \ie, \emph{learn}, shape \green{completion} under weak supervision.
+
+Finally, we consider the qualitative results on KITTI as presented in Figure \ref{fig:experiments-shapenet-kitti}. As full ground truth shapes are not available, reasoning about qualitative performance is difficult. For example, \AML and \cite{Engelmann2016GCPR} make similar predictions for the first sample. For the second and third one, however, the predictions differ significantly. \green{Here, we argue that \cite{Engelmann2016GCPR} has difficulties predicting reasonably sized cars while \AML is not able to recover details such as wheels.} We also notice, that \Sup is clearly biased towards very thin cars not matching the observed points. Overall, we find it difficult to judge shape completion on KITTI -- which motivated the creation of \clean and \noisy; both \cite{Engelmann2016GCPR} and \AML are able to predict reasonable shapes.
+
+\vspace*{-6px}
+\subsubsection{Shape Completion on ModelNet}
+
+\green{On ModelNet, we compare \AML and \Sup against the \VAE shape prior (note that \cite{Engelmann2016GCPR} is not applicable), considering both category-specific and -agnostic models, see Table \ref{tab:experiments-modelnet}. As on \clean, \AML is able to achieve reasonable performance compared to \Sup while using $9\%$ or less supervision. Additionally, Figure \ref{fig:experiments-modelnet} shows that \AML is able to distinguish object categories reasonably well without access to category information during training (in contrast to \Sup); more results are discussed in the supplementary material.}
+
+\input{fig/experiments_modelnet}
