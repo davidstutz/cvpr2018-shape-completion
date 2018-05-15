@@ -17,6 +17,6 @@ Please cite as:
 Also check the [project page](http://davidstutz.de/projects/shape-completion/)
 for the final publication, code and data.
 
-![AML.](screenshot.jpg?raw=true "AML.")
+![AML.](screenshot.png?raw=true "AML.")
 
 See `code/README.md` for details and license of the code.
