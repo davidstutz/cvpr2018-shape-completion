@@ -1,9 +1,6 @@
 [submodule "code/daml-shape-completion"]
 	path = code/daml-shape-completion
 	url = https://github.com/davidstutz/daml-shape-completion
-[submodule "code/shape-completion-benchmark"]
-	path = code/shape-completion-benchmark
-	url = https://github.com/davidstutz/shape-completion-benchmark
 [submodule "code/bpy-visualization-utils"]
 	path = code/bpy-visualization-utils
 	url = https://github.com/davidstutz/bpy-visualization-utils
