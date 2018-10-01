@@ -1,0 +1,378 @@
+\documentclass[portrait]{article}
+\usepackage[latin1]{inputenc}
+
+\usepackage{setspace}
+\usepackage[
+%natbib=true,
+%style=numeric,
+%citestyle=numeric,
+%backend=bibtex8,
+%citetracker,
+%backref,
+%defernumbers=true,
+backend=biber,
+maxbibnames=2,
+firstinits=true,
+%style=ieee,
+sorting=none,
+]{biblatex}
+
+\makeatletter
+\DeclareCiteCommand{\fullcite}
+{\defcounter{maxnames}{\blx@maxbibnames}%
+    \usebibmacro{prenote}}
+{{\printtext[labelnumberwidth]{% New
+            \printfield{prefixnumber}% New
+            \printfield{labelnumber}}} % New
+    \usedriver
+    {\DeclareNameAlias{sortname}{default}}
+    {\thefield{entrytype}}}
+{\multicitedelim}
+{\usebibmacro{postnote}}
+
+\setlength\bibitemsep{0.1\baselineskip}
+\renewcommand{\bibfont}{\tiny}
+\bibliography{bibliography_short,bibliography,bibliography_custom}
+
+\renewcommand{\rmdefault}{phv}
+\renewcommand{\sfdefault}{phv}
+\renewcommand{\ttdefault}{pcr}
+
+\usepackage{ragged2e}
+\AtBeginDocument{\RaggedRight}
+
+\usepackage{rotating}
+\usepackage{latexsym}
+\usepackage{graphicx}
+\graphicspath{{../Stutz2018PosterCVPR/gfx/}{./gfx/}}
+%\newcommand{\cropleft}{0.9}
+%\newcommand{\croplower}{0.9}
+%\newcommand{\cropright}{0.8}
+%\newcommand{\cropupper}{0.95}
+
+%\graphicspath{{../../papers/Stutz2018IJCV/gfx_original/}{./gfx/}}
+\newcommand{\cropleft}{1.8}
+\newcommand{\croplower}{1.8}
+\newcommand{\cropright}{1.6}
+\newcommand{\cropupper}{1.9}
+
+\usepackage{url}
+\usepackage{calc}
+\usepackage[
+    portrait,
+    a4paper,
+    left=5mm,
+    right=5mm,
+    top=4mm,
+    bottom=4mm,
+    includehead,
+    headheight=12mm,
+    %showframe
+]{geometry}
+\usepackage{fancyhdr}
+\usepackage{parskip}
+
+\pagestyle{fancy}
+\makeatletter
+\def\headrule{}
+\def\footrule{}
+\makeatother
+\lfoot{}
+\cfoot{}
+\rfoot{}
+\lhead{ %
+	\raisebox{2.5mm}{\includegraphics[height=17mm]{gfx/mpilogo-inf-compact}}
+}
+\chead{%
+	\begin{center}
+        %\raisebox{5mm}{
+            \hspace*{-10mm}
+    		{\Large\bf Learning 3D Shape Completion}\\[0.5mm]
+            \hspace*{-10mm}
+    		{\Large\bf under Weak Supervision}\\[1.5mm]
+            \hspace*{-10mm}
+    		{\large David Stutz and Andreas Geiger}
+        %}
+	\end{center}
+}
+\rhead{ %
+	\raisebox{6mm}{\includegraphics[height=14mm]{gfx/avg_uni_tue}}
+}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{calc}
+\usetikzlibrary{shadings,shadows}
+
+\usepackage{xcolor}
+\definecolor{MPIIblue}{RGB}{0,51,93}
+\definecolor{MPIIlightblue}{RGB}{103,133,158} % 67859E
+\definecolor{MPIIorange}{RGB}{200,91,15} % C85B0F
+\definecolor{MPIIblack}{RGB}{46,46,46}
+\definecolor{MPIIwhite}{RGB}{255,255,255}
+\definecolor{MPIIdarkgray}{RGB}{123,123,123}
+\definecolor{MPIIdarkergray}{RGB}{89,89,89}
+\definecolor{MPIIgray}{RGB}{169,169,169}
+\definecolor{MPIIlightgray}{RGB}{214,214,214}
+\definecolor{MPIIlightergray}{RGB}{234,234,234}
+\definecolor{MPIIgreen}{HTML}{327a2b} % 0.22,0.54, 0.19
+\definecolor{MPIIred}{rgb}{0.65,0.23,0.25}
+\definecolor{MPIIbeige}{rgb}{0.65,0.23,0.25}
+
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
+\newenvironment{problem}[1]{%
+    \tcolorbox[noparskip,frame hidden,boxrule=0.5mm,colframe=MPIIgray,
+    colbacktitle=MPIIgray,coltitle=MPIIwhite,
+    colback=MPIIwhite, %coltext=MPIIblue,
+    titlerule=0mm,sharpish corners,no shadow,
+    left=1.5mm,top=1.5mm,right=1.5mm,bottom=1mm,
+    lefttitle=1.5mm,toptitle=1mm,righttitle=1.5mm,bottomtitle=0.5mm,
+    title=#1]}%
+{\endtcolorbox}
+\newenvironment{contribution}[1]{%
+    \tcolorbox[noparskip,frame hidden,boxrule=0mm,colframe=MPIIwhite,
+    colbacktitle=MPIIgray,coltitle=MPIIwhite,
+    colback=MPIIwhite,
+    titlerule=0mm,sharpish corners,no shadow,
+    left=1.5mm,top=1.5mm,right=1.5mm,bottom=1mm,
+    lefttitle=1.5mm,toptitle=1mm,righttitle=1.5mm,bottomtitle=1mm,
+    title=#1]}%
+{\endtcolorbox}
+\newenvironment{method}[1]{%
+    \tcolorbox[noparskip,frame hidden,boxrule=0mm,colframe=MPIIwhite,
+    colbacktitle=MPIIblue,coltitle=MPIIwhite,
+    colback=MPIIwhite,
+    titlerule=0mm,sharpish corners,no shadow,
+    left=1.5mm,top=1.5mm,right=1.5mm,bottom=1mm,
+    lefttitle=1.5mm,toptitle=1mm,righttitle=1.5mm,bottomtitle=1mm,
+    title=#1]}%
+{\endtcolorbox}
+\newenvironment{results}[1]{%
+    \tcolorbox[noparskip,frame hidden,boxrule=0.5mm,colframe=MPIIlightgray,
+    colbacktitle=MPIIlightgray,coltitle=MPIIblue,
+    colback=MPIIwhite,
+    titlerule=0mm,sharpish corners,no shadow,
+    left=1.5mm,top=1.5mm,right=1.5mm,bottom=1mm,
+    lefttitle=1.5mm,toptitle=1mm,righttitle=1.5mm,bottomtitle=0.5mm,
+    title=#1]}%
+{\endtcolorbox}
+\newenvironment{code}[1]{%
+    \tcolorbox[noparskip,frame hidden,boxrule=0mm,colframe=MPIIwhite,
+    colback=MPIIorange,coltext=MPIIwhite,
+    titlerule=0mm,sharpish corners,no shadow,
+    left=2.5mm,top=2.5mm,right=2.5mm,bottom=2.5mm,
+    lefttitle=2.5mm,toptitle=2.5mm,righttitle=2.5mm,bottomtitle=2.5mm,
+    title=#1]}%
+{\endtcolorbox}
+\newenvironment{references}[1]{%
+    \tcolorbox[noparskip,frame hidden,boxrule=0mm,colframe=MPIIwhite,
+    colbacktitle=MPIIwhite,coltitle=MPIIdarkergray,
+    colback=MPIIwhite,
+    titlerule=0mm,sharpish corners,no shadow,
+    left=1.5mm,top=0.25mm,right=1.5mm,bottom=0.5mm,
+    lefttitle=1.5mm,toptitle=0.25mm,righttitle=1.5mm,bottomtitle=0.25mm,
+    title=#1]}%
+{\endtcolorbox}
+\newenvironment{conclusion}[1]{%
+    \tcolorbox[noparskip,frame hidden,boxrule=0mm,colframe=MPIIwhite,
+    colbacktitle=MPIIblue,coltitle=MPIIwhite,
+    colback=MPIIwhite,
+    titlerule=0mm,sharpish corners,no shadow,
+    left=1.5mm,top=1.5mm,right=1.5mm,bottom=1mm,
+    lefttitle=1.5mm,toptitle=1mm,righttitle=1.5mm,bottomtitle=1mm,
+    title=#1]}%
+{\endtcolorbox}
+
+\usepackage{amssymb}
+\renewcommand{\labelitemi}{\color{MPIIblue} $\blacktriangleright$}
+
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=5mm}
+
+\usepackage{xspace}
+\newcommand*{\eg}{\emph{e.g.}\@\xspace}
+\newcommand*{\ie}{\emph{i.e.}\@\xspace}
+\newcommand*{\etc}{\emph{etc.}\@\xspace}
+\newcommand*{\etal}{\emph{et al.}\@\xspace}
+\newcommand*{\cf}{\emph{cf.}\@\xspace}
+
+\begin{document}
+    \begin{minipage}[t]{0.32\textwidth}
+        \strut\vspace*{-\baselineskip}
+        
+        \begin{problem}{\large Problem}
+            Learning {\bf 3D shape completion} of sparse and noisy point clouds {\bf without ground truth}.
+            
+            \vskip -3mm
+            \begin{minipage}[t]{0.45\textwidth}
+                % 0
+                \begin{minipage}[t]{0.48\textwidth}
+                    \vspace{0px}\centering
+                    \includegraphics[width=1.8cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{data/shapenet/clean/low/165_points}
+                \end{minipage}
+                \begin{minipage}[t]{0.48\textwidth}
+                    \vspace{0px}\centering
+                    \includegraphics[width=1.8cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{experiments/clean.high.10.wide/vae_aml/3_2_results/results_165}
+                \end{minipage}
+            \end{minipage}
+            \begin{minipage}[t]{0.45\textwidth}
+                \begin{minipage}[t]{0.48\textwidth}
+                    \vspace{0px}\centering
+                    \includegraphics[width=1.8cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{data/kitti/1224_points}
+                \end{minipage}
+                \begin{minipage}[t]{0.48\textwidth}
+                    \vspace{0px}\centering
+                    \includegraphics[width=1.8cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{experiments/corrected.clean.medium.10.wide.weighted2.1/vae_aml/3_2_results/results_1224}
+                \end{minipage}
+            \end{minipage}
+            \\[-6px]
+            \begin{minipage}[t]{0.45\textwidth}
+                % 264 1188 1452
+                \begin{minipage}[t]{0.48\textwidth}
+                    \vspace{0px}\centering
+                    \includegraphics[width=1.8cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{data/modelnet/chair/high/1452_points}
+                \end{minipage}
+                \begin{minipage}[t]{0.48\textwidth}
+                    \vspace{0px}\centering
+                    \includegraphics[width=1.8cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{experiments/clean.chair.high.10.wide.d/vae_aml/3_3_results/results_1452}
+                \end{minipage}
+            \end{minipage}
+            \begin{minipage}[t]{0.45\textwidth}
+                \begin{minipage}[t]{0.48\textwidth}
+                    \vspace{0px}\centering
+                    \includegraphics[width=1.8cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{data/yang/table/5_bin_points}
+                \end{minipage}
+                \begin{minipage}[t]{0.48\textwidth}
+                    \vspace{0px}\centering
+                    \includegraphics[width=1.8cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{experiments/clean.rtable.low.10.wide/vae_aml/3_3_results/results_5}
+                \end{minipage}
+            \end{minipage}
+        \end{problem}
+    
+        \begin{contribution}{\large Contributions}
+            \begin{itemize}
+                \item Learning-based, but weakly-supervised, amortized maximum likelihood ({\bf\color{MPIIorange} AML}) approach.
+                \item Synthetic and real benchmarks.
+            \end{itemize}
+        \end{contribution}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.66\textwidth}
+        \strut\vspace*{-\baselineskip}
+        
+        \begin{method}{\large\bf Method}
+            \centering
+            \vskip -2mm
+            %\includegraphics[scale=0.95]{fig/method_b}
+            \input{fig/method_b}
+        \end{method}
+    \end{minipage}
+    \vspace*{-5mm}
+    
+    \begin{minipage}[t]{0.32\textwidth}
+        \strut\vspace*{-\baselineskip}
+    
+        \begin{results}{\large Quantitative Results\vphantom{y}}
+            \begin{minipage}[t]{1\textwidth}
+                \strut\vspace*{-\baselineskip} % !
+                \vspace*{-1.5mm}
+                
+                \hspace*{-2.5mm}
+                \input{fig/results_noisy_b}
+            \end{minipage}
+            \vspace*{-10mm}
+            
+            \begin{minipage}[t]{0.48\textwidth}
+                \strut\vspace*{-\baselineskip} % !
+                
+                \hspace*{-2.5mm}
+                \input{fig/results_kitti_b}
+            \end{minipage}
+            \hfill
+            \begin{minipage}[t]{0.48\textwidth}
+                \strut\vspace*{-\baselineskip} % !
+                
+                \hspace*{-2.5mm}
+                \input{fig/results_modelnet_b}
+            \end{minipage}
+            \vspace*{-10mm}
+        \end{results}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.66\textwidth}
+        \strut\vspace*{-\baselineskip}
+        
+        \begin{results}{\large Qualitative Results on ShapeNet and ModelNet (Synthetic)}
+            \input{fig/experiments_synthetic_b}
+        \end{results}
+    \end{minipage}
+    
+    \begin{minipage}[t]{0.49\textwidth}
+        \strut\vspace*{-\baselineskip}
+        
+        \begin{results}{\large Qualitative Results on KITTI and Kinect (Real)}
+            \input{fig/experiments_kitti_b}
+            \vspace{5mm}
+            
+            \input{fig/experiments_kinect_b}
+        \end{results}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.49\textwidth} 
+        \strut\vspace*{-\baselineskip}
+                   
+        \begin{conclusion}{\large\bf Conclusion \vphantom{Q()}}
+            We proposed a learning-based, but weakly-supervised, amortized maximum likelihood ({\bfseries\color{MPIIorange}AML}) approach to 3D shape completion.
+            \vskip 2.5mm
+            
+            \begin{itemize}
+                \item Outperforms data-driven approach \cite{Engelmann2016GCPR};\\ but $84$ times faster.
+                \item Competitive to learning-based approach \cite{Dai2017CVPRa};\\ but up to $96\%$ less supervision.
+            \end{itemize}
+        \end{conclusion}
+    
+        \vspace*{-0.5mm}    
+        \begin{minipage}[t]{0.775\textwidth}
+            \strut\vspace*{-\baselineskip} % !
+            
+            \begin{code}{}
+                Paper, Code and Data:\\
+                \large\bf\url{davidstutz.de/mlss2018}
+            \end{code}
+        \end{minipage}
+        \hfill
+        \begin{minipage}[t]{0.2\textwidth}
+            \strut\vspace*{-\baselineskip} % !
+            
+            \includegraphics[width=17mm]{gfx/mlss2018}
+        \end{minipage}
+    \end{minipage}
+    \vspace*{-4mm}
+
+    \begin{minipage}[t]{0.49\textwidth}
+        \strut\vspace*{-\baselineskip} % !
+        
+        \begin{references}{\scriptsize References}
+            {\color{MPIIdarkergray}\tiny
+                \fullcite{Dai2017CVPRa}\\
+                \fullcite{Engelmann2016GCPR}\\
+                \fullcite{Geiger2012CVPR}\\
+            }
+        \end{references}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.49\textwidth}
+        \strut\vspace*{-\baselineskip} % !
+        
+        \vspace*{-1mm}
+        \begin{references}{\vphantom{References}}
+            {\color{MPIIdarkergray}\tiny
+                \fullcite{Chang2015ARXIV}\\
+                \fullcite{Wu2015CVPR}\\
+                \fullcite{YangARXIV2018}\\
+            }
+        \end{references}
+    \end{minipage}
+\end{document}

@@ -1,0 +1,123 @@
+\newcommand{\kittia}{1224}
+\newcommand{\kittib}{1530} % 612
+\newcommand{\kittic}{0}
+\newcommand{\kittid}{2448} % 2754
+\newcommand{\kittie}{3366} % 3060
+
+\newcommand{\shapeneta}{0}
+\newcommand{\shapenetb}{66}
+\newcommand{\shapenetc}{132}
+\newcommand{\shapenetd}{198}
+\newcommand{\shapenete}{264}
+\hspace*{-2mm}
+\begin{tikzpicture}
+    % ---------------------------------------------------------
+    \node[rotate=90] at (6.85, 0) {\small supervised};
+    
+    \node[rotate=90] at (-5.2, 0) {\begin{tabular}{c}{\small\bf(1) Shape Prior}\\[1mm]{\footnotesize Variational}\\ {\footnotesize Auto-Encoder}\end{tabular}};
+    
+    \node[rectangle,draw=black,anchor=west] (prior) at (-4.4,0) {
+        \begin{tabular}{c}
+	        \includegraphics[height=1cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{data/shapenet/clean/low/\shapenetb_gt_only}
+            \includegraphics[height=1cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{data/shapenet/clean/low/\shapenetc_gt_only}\\
+            \includegraphics[height=1cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{data/shapenet/clean/low/\shapenetd_gt_only}
+            \includegraphics[height=1cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{data/shapenet/clean/low/\shapenete_gt_only}
+        \end{tabular}
+    };
+    \node[anchor=south] at (-2.85,1.25) {\small Synthetic Training Data};
+    
+    \node[anchor=south] (y) at (0, 1.25) {\small Shape $y$};
+    
+    \node[rectangle,draw=black,anchor=west] (input) at (-1, 0) {
+        \begin{tabular}{c}
+            \includegraphics[height=1cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{data/shapenet/clean/low/\shapeneta_gt_only}\\
+            \includegraphics[height=1cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{data/shapenet/clean/low/\shapeneta_bin_only}
+        \end{tabular}
+    };
+  
+    \draw ($(input.north east) + (0.2,0)$) -- ($(input.north east) + (1.5,-0.75)$) -- ($(input.north east) + (1.5,-1.75)$) -- ($(input.south east) + (0.2,0)$) -- ($(input.north east) + (0.2,0)$);
+    \node at ($(input.east) + (0.825,0)$) {\footnotesize encoder};
+    
+    \node (z) at (2.75, 0) {\small $z$};
+    
+    \node[rectangle,draw=black,anchor=east] (output) at (6.5, 0) {
+        \begin{tabular}{c}
+        \includegraphics[height=1cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{experiments/clean.low.10.wide/prior/3_2_results/results_\shapeneta}\\
+        \includegraphics[height=1cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{experiments/clean.low.10.wide/prior/3_3_results_only/results_\shapeneta}
+        \end{tabular}
+    };
+    
+    \draw ($(output.north west) - (0.2,0)$) -- ($(output.north west) - (1.5,0.75)$) -- ($(output.north west) - (1.5,1.75)$) -- ($(output.south west) - (0.2,0)$) -- ($(output.north west) - (0.2,0)$);
+    \node at ($(output.west) - (0.825,0)$) {\footnotesize decoder};
+    
+    \node[anchor=south] (ry) at (5.5, 1.25) {\small Rec. Shape $\tilde{y}$};
+    
+    \node[] (L) at ($(y) + (2.75,0.4)$) {\small Reconstruction Loss};
+    
+    \draw[-] (ry) -- ($(ry) + (0,0.4)$);
+    \draw[-] ($(ry) + (0,0.4)$) -- (L);
+    \draw[-] (y) -- ($(y) + (0,0.4)$);
+    \draw[-] ($(y) + (0,0.4)$) -- (L);    
+    
+    \begin{scope}[shift={(0,-3.5)}]
+        % ---------------------------------------------------------
+        %\draw[-,MPIIgray] (-6, -2.25) -- (-6, 2) -- (6.75, 2) -- (6.75,-2.25) -- (-6, -2.25);
+        \node[rotate=90] at (6.85, 0) {\small unsupervised};
+        
+	    \node[rotate=90] at (-5.2, 0) {\begin{tabular}{c}{\small\bf(2) Shape Inference}\\[1mm]{\footnotesize Amortized Maximum}\\{\footnotesize Likelihood ({\bfseries\color{MPIIorange}AML})}\end{tabular}};
+	    
+	    \node[rectangle,draw=black,anchor=west] (inference) at (-4.4,0) {
+	        \begin{tabular}{c}
+		        \includegraphics[height=1cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{data/kitti/\kittib_points}
+                \includegraphics[height=1cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{data/kitti/\kittic_points}
+                \\
+                \includegraphics[height=1cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{data/kitti/\kittid_points}
+                \includegraphics[height=1cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{data/kitti/\kittie_points}
+	        \end{tabular}
+	    };
+	    
+	    \node[anchor=north] at (-2.85,-1.25) {\small\begin{tabular}{c}Real Training Data\\without Targets\end{tabular}};
+	    
+	    % --
+	    \node(correspondence) at ($(inference) + (0,1.75)$) {\footnotesize\textbf{no correspondence needed}};
+	    \draw[-,dotted] (prior) -- (correspondence);
+	    \draw[-,dotted] (correspondence) -- (inference);
+	    
+	    \node(retain) at ($(correspondence) + (6.5,0)$) {\footnotesize retain fixed decoder};
+	    \draw[-] ($(prior) + (6.5,-0.9)$) -- (retain);
+	    \draw[->] (retain) -- ($(inference) + (6.5,0.9)$);
+	    
+	    \node[anchor=north] (y) at (0, -1.25) {\small Observation $x$};
+	    
+	    \node[rectangle,draw=black,anchor=west] (input) at (-1, 0) {
+	        \begin{tabular}{c}
+	        \includegraphics[height=1cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{data/kitti/\kittia_points}\\
+            \includegraphics[height=1cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{data/kitti/\kittia_bin_points}
+	        \end{tabular}
+	    };
+	    
+	    \draw ($(input.north east) + (0.2,0)$) -- ($(input.north east) + (1.5,-0.75)$) -- ($(input.north east) + (1.5,-1.75)$) -- ($(input.south east) + (0.2,0)$) -- ($(input.north east) + (0.2,0)$);
+        \node at ($(input.east) + (0.825,0)$) {\footnotesize \begin{tabular}{c}new\\encoder\end{tabular}};
+	    
+	    \node (z) at (2.75, 0) {\small $z$};
+	    
+	    \node[rectangle,draw=black,anchor=east] (output) at (6.5, 0) {
+	        \begin{tabular}{c}
+	        \includegraphics[height=1cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{experiments/corrected.clean.medium.10.wide.weighted2.1/vae_aml/3_2_results/results_\kittia}\\
+            \includegraphics[height=1cm,trim={\cropleft cm \croplower cm \cropright cm \cropupper cm},clip]{experiments/corrected.clean.medium.10.wide.weighted2.1/vae_aml/3_3_results/results_\kittia}
+	        \end{tabular}
+	    };
+	    
+	    \draw ($(output.north west) - (0.2,0)$) -- ($(output.north west) - (1.5,0.75)$) -- ($(output.north west) - (1.5,1.75)$) -- ($(output.south west) - (0.2,0)$) -- ($(output.north west) - (0.2,0)$);
+	    \node at ($(output.west) - (0.825,0)$) {\footnotesize \begin{tabular}{c}fixed\\decoder\end{tabular}};
+	    
+	    \node[anchor=north] (ry) at (5.5, -1.25) {\small Prop. Shape $\tilde{y}$};
+	    
+	    \node[] (L) at ($(y) - (-2.75,0.4)$) {\small\begin{tabular}{c}Maximum Likelihood Loss\end{tabular}};
+	    
+	    \draw[-] (ry) -- ($(ry) - (0,0.4)$);
+	    \draw[-] ($(ry) - (0,0.4)$) -- (L);
+	    \draw[-] (y) -- ($(y) - (0,0.4)$);
+	    \draw[-] ($(y) - (0,0.4)$) -- (L);
+    \end{scope}
+\end{tikzpicture}

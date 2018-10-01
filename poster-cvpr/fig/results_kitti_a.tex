@@ -1,0 +1,66 @@
+\begin{tikzpicture}
+	\begin{axis}[
+    	ybar,
+    	% https://tex.stackexchange.com/questions/119887/remove-the-scientific-notation-which-is-unreasonable
+    	yticklabel style={
+    		/pgf/number format/fixed,
+    		/pgf/number format/precision=5
+    	},
+    	scaled y ticks=false,
+    	%enlargelimits=0.15,
+    	legend style={
+    		at={(-0.05,-0.6)},
+    		anchor=north west,
+            draw=none,
+            font=\small,
+    	},
+    	% https://tex.stackexchange.com/questions/48620/pgfplots-alignment-and-size-of-math-in-legend
+    	legend cell align=left,
+    	xtick={
+    		1,
+    		2,
+            3
+    	},
+    	xticklabels={
+    		Sup,
+    		AML,
+    		\cite{Engelmann2016GCPR},
+    	},
+    	x tick label style={text width=1.5cm,align=right},
+    	ymin=0,
+        ymax=1,
+    	width=5.25cm,
+    	height=3.5cm,
+    	enlarge x limits=0.15,
+    	% https://tex.stackexchange.com/questions/271027/pgfplots-how-to-rotate-extra-x-tick-labels
+    	x tick label style={
+    		rotate=90,
+    		anchor=east,
+    	},
+    	bar width=32,
+    	% https://tex.stackexchange.com/questions/46316/how-to-put-the-values-of-each-bar-in-a-pgfplots-bar-chart-inside-the-bar-itself
+    	nodes near coords,
+    	axis lines*=left,
+    	y axis line style={opacity=0},
+    	yticklabels={\empty},
+    	ytick style={draw=none},
+    	% https://tex.stackexchange.com/questions/51095/reduce-font-size-and-keep-label-position-in-bar-chart-using-pgf-tikz
+    	every node near coord/.append style={
+    		font=\small,
+    		% https://tex.stackexchange.com/questions/239132/pgfplots-bar-plot-number-format
+    		/pgf/number format/.cd, fixed, precision=3,1000 sep={}
+    	},
+	]
+	
+    	% AbsThr
+    	\addplot[MPIIorange,fill=MPIIorange] coordinates {
+    		(1, 0.176)
+    		(2, 0.091)
+    		(3, 0.131)
+    	};
+    	\addlegendentry{Completeness [m] $\downarrow$}
+	\end{axis}
+    \node[MPIIorange] at (0.55,1.15) {\small $100\%$};
+    \draw[MPIIorange,dashed] (1.15,1.4) -- (1.15,-0.5);
+    \node[MPIIorange] at (2.65,1.15) {\small $3.65\%$ supervision};
+\end{tikzpicture}

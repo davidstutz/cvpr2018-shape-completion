@@ -1,0 +1,76 @@
+\begin{tikzpicture}
+	\begin{axis}[
+    	ybar,
+    	% https://tex.stackexchange.com/questions/119887/remove-the-scientific-notation-which-is-unreasonable
+    	yticklabel style={
+    		/pgf/number format/fixed,
+    		/pgf/number format/precision=5
+    	},
+    	scaled y ticks=false,
+    	% https://tex.stackexchange.com/questions/60687/pgfplots-remove-the-plot-line-in-the-legend?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+        legend plot pos=none,
+    	legend style={
+    		at={(-0.1,1)},
+    		anchor=south west,
+            draw=none,
+            font=\footnotesize,
+    	},
+    	% https://tex.stackexchange.com/questions/48620/pgfplots-alignment-and-size-of-math-in-legend
+    	legend cell align=left,
+    	xtick={
+    		1,
+    		2,
+            3,
+    		4,
+            5
+    	},
+    	xticklabels={
+            VAE\\Prior,
+    		\cite{Dai2017CVPRa},
+    		{\bf\color{MPIIorange} AML},
+    		ML,
+    		\cite{Engelmann2016GCPR},
+    	},
+    	x tick label style={text width=1.5cm,align=right,font=\small},
+    	ymin=0,
+        ymax=4,
+    	width=7.2cm,
+    	height=3.5cm,
+    	enlarge x limits=0.125,
+    	% https://tex.stackexchange.com/questions/271027/pgfplots-how-to-rotate-extra-x-tick-labels
+    	x tick label style={
+    		rotate=90,
+    		anchor=east,
+    	},
+    	bar width=22,
+    	% https://tex.stackexchange.com/questions/46316/how-to-put-the-values-of-each-bar-in-a-pgfplots-bar-chart-inside-the-bar-itself
+    	nodes near coords,
+    	axis lines*=left,
+    	y axis line style={opacity=0},
+    	yticklabels={\empty},
+    	ytick style={draw=none},
+    	% https://tex.stackexchange.com/questions/51095/reduce-font-size-and-keep-label-position-in-bar-chart-using-pgf-tikz
+    	every node near coord/.append style={
+    		font=\footnotesize,
+    		% https://tex.stackexchange.com/questions/239132/pgfplots-bar-plot-number-format
+    		/pgf/number format/.cd, fixed, precision=3,1000 sep={}
+    	},
+	]
+	
+    	% AbsThr
+    	\addplot[MPIIblue,fill=MPIIblue] coordinates {
+            (1, 0.405) % 0.283 0.527
+    		(2, 0.512) % 0.391 0.633
+    		(3, 0.6655) % 0.57 0.761
+    		(4, 0.727) % 0.625 0.829
+    		(5, 1.643) % 1.974 1.312
+    	};
+    	\addlegendentry{\begin{tabular}{l}{\large\color{MPIIblue} ShapeNet}\\[0.5mm]Accuracy and Completeness [vx] $\downarrow$\end{tabular}}
+	\end{axis}
+    
+    \node (middle) at (2.25,0){};
+    \node[anchor=south] at ($(middle) + (0,1.2)$){\footnotesize supervision};
+    \node[MPIIblue,anchor=north east] at ($(middle) + (-0.05,1.3)$) {\footnotesize $100\%$};
+    \draw[MPIIblue,dashed] ($(middle) + (0,1.2)$) -- ($(middle) + (0,-1)$);
+    \node[MPIIblue,anchor=north west] at ($(middle) + (0.05,1.3)$) {\footnotesize $\leq3.86\%$};
+\end{tikzpicture}
